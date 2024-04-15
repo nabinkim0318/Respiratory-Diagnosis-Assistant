@@ -1,12 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Home Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Respiratory Diagnosis Assistant</title>
 </head>
 <body>
-    <h1>Welcome to the Respiratory Search App</h1>
-    <p>This is the landing page of the application.</p>
-    <p>Here, you can find information about respiratory conditions and search for related content.</p>
-    <a href="{% url 'search' %}">Go to Search Page</a>
+    <header>
+        <h1>Welcome to the Respiratory Search App</h1>
+    </header>
+
+    <p>This is the landing page of the application. Here, you can find information about respiratory conditions and search for related content.</p>
+ 
+    <nav>
+        <!-- Navigation options to other pages -->
+        <ul>
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'search' %}">Search</a></li>
+            <li><a href="{% url 'help' %}">Help/FAQ</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+    </nav>
+    
+
+    <section id="introduction">
+        <h2>Introduction</h2>
+        <!-- Brief introduction to the application -->
+        <p>This application assists in diagnosing respiratory conditions using machine learning algorithms.</p>
+    </section>
+
+{% comment %} 
+    <footer>
+        <!-- Footer content -->
+        <p>&copy; 2024 Respiratory Diagnosis Assistant</p>
+    </footer> {% endcomment %}
 </body>
 </html>
+
