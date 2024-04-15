@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% comment %} <!DOCTYPE html>
 <html>
 <head>
     <title>Contact</title>
@@ -18,13 +18,46 @@
         <textarea id="feedback" name="feedback" rows="4" cols="50"></textarea><br><br>
         <button type="submit">Submit</button>
     </form>
-    <h2>Social Media</h2>
+    {% comment %} <h2>Social Media</h2>
     <p>Connect with us on social media:</p>
     <ul>
         <li><a href="#">Facebook</a></li>
         <li><a href="#">Twitter</a></li>
         <li><a href="#">LinkedIn</a></li>
         <!-- Add more social media links as needed -->
-    </ul>
+    </ul> 
+</body>
+</html> {% endcomment %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+</head>
+<body>
+    <h1>Contact Us</h1>
+
+    <!-- Contact Information Section -->
+    <section>
+        <h2>Contact Information</h2>
+        <p>If you have any questions, feedback, or inquiries, feel free to reach out to us:</p>
+        <ul>
+            <li>Email: info@respiratorysearch.com</li>
+            <li>Phone: 123-456-7890</li>
+        </ul>
+    </section>
+
+    <!-- Feedback Form Section -->
+    <section>
+        <h2>Feedback Form</h2>
+        <form method="post">
+            {% csrf_token %}
+            <label for="feedback">Your Feedback:</label><br>
+            <textarea id="feedback" name="feedback" rows="4" cols="50"></textarea><br><br>
+            <button type="submit">Submit</button>
+        </form>
+    </section>
 </body>
 </html>

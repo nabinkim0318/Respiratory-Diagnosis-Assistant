@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% comment %} <!DOCTYPE html>
 <html>
 <head>
     <title>About</title>
@@ -23,5 +23,56 @@
     <h2>Contact Information</h2>
     <p>Email: info@respiratorysearch.com</p>
     <p>Phone: 123-456-7890</p>
+</body>
+</html> {% endcomment %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>About</title>
+</head>
+<body>
+    <h1>About Respiratory Search App</h1>
+    <h2>Project Goal</h2>
+    <p>The primary goal of this project is to develop a robust, user-friendly application optimized for querying lung sound audio files. We aim to enhance the diagnostic process by enabling matching between specific lung diseases and their characteristic sound patterns. By leveraging advanced machine learning techniques and optimized database management practices, we intend to streamline the querying process. This will facilitate immediate access to relevant audio samples based on disease input and enable predictive disease identification from lung sound patterns. Additionally, we aim to enable users, including healthcare professionals and patients, to contribute new audio recordings and metadata to enrich the database and improve the accuracy of disease classification.</p>
+    
+    <h2>User/Use Case</h2>
+    <p>The potential users of the application are medical professionals, including doctors, nurses, physicians, and specialists. These professionals will utilize the application to streamline their workflow, access patient information efficiently, and interpret diagnostic results. The system should cater to their specific needs with user-friendly interfaces designed for easy navigation and interpretation of medical data.</p>
+    
+    <h2>Problem Definition</h2>
+    <p>There are several components of this project:</p>
+    <ol>
+        <li>Establish a database system for adult patients, child patients, audio files, and diagnoses.</li>
+        <li>Develop a machine learning model for the classification of respiratory conditions based on lung sounds.</li>
+        <li>Convert user input (If it is audio files) to features and use it for classification with metadata(optional).</li>
+        <li>Return audio features (and original audio if possible) files related to user input if user input is text (disease name).</li>
+    </ol>
+
+    <h2>Respiratory Conditions</h2>
+    <!-- Brief descriptions of respiratory conditions -->
+    <ul>
+        <li><strong>URTI (Upper Respiratory Tract Infection):</strong> Common viral infection affecting the nose, throat, and upper airways.</li>
+        <li><strong>Asthma:</strong> Chronic inflammatory disease of the airways characterized by recurring episodes of wheezing, breathlessness, chest tightness, and coughing.</li>
+        <li><strong>COPD (Chronic Obstructive Pulmonary Disease):</strong> Progressive lung disease that makes it difficult to breathe due to airflow obstruction and inflammation.</li>            <li><strong>LRTI (Lower Respiratory Tract Infection):</strong> Infection affecting the lungs and airways, including conditions like bronchitis and pneumonia.</li>
+        <li><strong>Bronchiectasis:</strong> Condition where the airways in the lungs become widened and scarred, leading to recurrent lung infections and breathing difficulties.</li>
+        <li><strong>Pneumonia:</strong> Infection that inflames air sacs in one or both lungs, causing cough with phlegm, fever, chills, and difficulty breathing.</li>
+        <li><strong>Bronchiolitis:</strong> Common respiratory illness in infants and young children, typically caused by a viral infection, leading to inflammation and mucus buildup in the small airways of the lungs.</li>
+    </ul>
+
+    <h1>Project Development</h1>
+    <h2>Development Team</h2>
+    <ul>
+        <li>Minjun Kim</li>
+        <li>Nabin Kim</li>
+        <li>Sandra Kurian</li>
+        <li>Seohee Yoon</li>
+    </ul>
+    {% comment %} <h2>Project Milestones</h2> {% endcomment %}
+    {% comment %} <ul>
+        <li>THIS NEEDS TO BE UPDATED</li>
+    </ul> {% endcomment %}
+    <h2>Contact Information</h2>
+    <p>Email: info@respiratorysearch.com <br>
+        Phone: 123-456-7890</p>
 </body>
 </html>

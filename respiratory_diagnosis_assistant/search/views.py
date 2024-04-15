@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from datetime import datetime
 from .forms import SearchForm
 from .models import AudioFile
 
@@ -30,6 +31,14 @@ def search(request):
         form = SearchForm()
     return render(request, 'search/search.html', {'form': form})
 
+def text_results(request):
+    # Add your view logic here
+    return render(request, 'search/text_results.html') 
+
+def audio_results(request):
+    # Add your view logic here
+    return render(request, 'search/audio_results.html') 
+
 def about(request):
     return render(request, 'search/about.html')
 
@@ -38,11 +47,17 @@ def help(request):
 
 def contact(request):
     if request.method == 'POST':
-        # Process feedback form submission
         feedback = request.POST.get('feedback')
-        # Handle feedback submission (e.g., save to database)
-        # For now, let's print the feedback to console
-        print("Feedback:", feedback)
-        return render(request, 'search/contact.html', {'message': 'Thank you for your feedback!'})
+        if feedback:
+            save_feedback(feedback)
+            return render(request, 'search/contact.html', {'message': 'Thank you for your feedback!'})
+        else:
+            return render(request, 'search/contact.html', {'error': 'Please provide feedback before submitting.'})
     else:
         return render(request, 'search/contact.html')
+
+def save_feedback(feedback):
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    with open('feedback.txt', 'a') as file:
+        file.write(f"{timestamp}: {feedback}\n")
+    
