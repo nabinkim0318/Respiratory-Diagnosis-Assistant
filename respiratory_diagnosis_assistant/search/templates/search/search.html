@@ -7,8 +7,23 @@
     <h1>Respiratory Search</h1>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.non_field_errors }}
+        <div>
+            {{ form.query.label_tag }}: {{ form.query }}
+            {{ form.query.errors }}
+        </div>
+        <div>
+            {{ form.audio_file.label_tag }}: {{ form.audio_file }}
+            {{ form.audio_file.errors }}
+        </div>
+        <div>
+            {{ form.input_type.label_tag }}: {{ form.input_type }}
+        </div>
         <button type="submit">Search</button>
     </form>
+
+    {% if message %}
+    <p>{{ message }}</p>
+    {% endif %}
 </body>
 </html>

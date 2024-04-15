@@ -5,23 +5,49 @@
 </head>
 <body>
     <h1>Search Results</h1>
-    <div>
-        {% for result in search_results %}
-            <div>
-                <h2>Audio File: {{ result.audio_file }}</h2>
-                <audio controls>
-                    <source src="{{ result.audio_file }}" type="audio/mpeg">
-                    Your browser does not support the audio element.
-                </audio>
-                <p>Similarity Score: {{ result.similarity_score }}</p>
-                <ul>
-                    {% for key, value in result.metadata.items %}
-                        <li>{{ key }}: {{ value }}</li>
+
+    {% if search_results %}
+        <div class="results">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Patient Number</th>
+                        <th>Age</th>
+                        <th>Sex</th>
+                        <th>Disease</th>
+                        <th>Audio File</th>
+                        <th>Similarity Score (if applicable)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in search_results %}
+                    <tr>
+                        <td>{{ result.patient_number }}</td>
+                        <td>{{ result.age }}</td>
+                        <td>{{ result.sex }}</td>
+                        <td>{{ result.disease }}</td>
+                        <td>
+                            {% if result.audio_file %}
+                            <a href="{{ result.audio_file }}" target="_blank">Listen to Audio</a>
+                            {% else %}
+                            Not available
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if result.similarity_score %}
+                            {{ result.similarity_score|floatformat:2 }}
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </td>
+                    </tr>
                     {% endfor %}
-                </ul>
-            </div>
-            <hr>
-        {% endfor %}
-    </div>
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No results found. Please try another search.</p>
+    {% endif %}
+
 </body>
 </html>
