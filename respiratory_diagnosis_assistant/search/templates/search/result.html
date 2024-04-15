@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Results</title>
+</head>
+<body>
+    <h1>Search Results</h1>
+    <div>
+        {% for result in search_results %}
+            <div>
+                <h2>Audio File: {{ result.audio_file }}</h2>
+                <audio controls>
+                    <source src="{{ result.audio_file }}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                <p>Similarity Score: {{ result.similarity_score }}</p>
+                <ul>
+                    {% for key, value in result.metadata.items %}
+                        <li>{{ key }}: {{ value }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <hr>
+        {% endfor %}
+    </div>
+</body>
+</html>
