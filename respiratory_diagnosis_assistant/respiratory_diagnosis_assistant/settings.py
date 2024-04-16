@@ -76,11 +76,15 @@ WSGI_APPLICATION = "respiratory_diagnosis_assistant.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    },
+    "audio": {
         'ENGINE': 'djongo',
-        'NAME': 'your_database_name',
+        'NAME': 'respiratory-diagnosis',
         'CLIENT': {
-            'host': 'your_mongodb_uri'
+            'host': 'mongodb+srv://cs4440_8:cs4440_8@respiratory-diagnosis.hwlbmw8.mongodb.net/?retryWrites=true&w=majority&appName=respiratory-diagnosis'
         }
     }
 }

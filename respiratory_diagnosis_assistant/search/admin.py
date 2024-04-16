@@ -1,3 +1,8 @@
 from django.contrib import admin
+from .models import AudioFile, Patient, AudioRecording, Annotation, Diagnosis
 
-# Register your models here.
+admin.site.register(AudioFile)
+admin.site.register(Patient)
+admin.site.register(AudioRecording)
+admin.site.register(Annotation)
+admin.site.register(Diagnosis)
