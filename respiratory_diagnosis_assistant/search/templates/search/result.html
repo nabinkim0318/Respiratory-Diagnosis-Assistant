@@ -11,11 +11,15 @@
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>Patient Number</th>
-                        <th>Age</th>
-                        <th>Sex</th>
-                        <th>Disease</th>
-                        <th>Audio File</th>
+                        <th>Patient ID</th>
+                        <th>Diagnosis Name</th>
+                        <th>Recording Index</th>
+                        <th>Chest Location</th>
+                        <th>Acquisition Model</th>
+                        <th>Recording Equipment</th>
+                        <th>Annotation File</th>
+                        <th>Respiratory Cycles</th>
+                        <th>Sound File</th>
                         <th>Similarity Score (if applicable)</th>
                     </tr>
                 </thead>
@@ -23,16 +27,14 @@
                     {% for result in search_results %}
                     <tr>
                         <td>{{ result.patient_number }}</td>
-                        <td>{{ result.age }}</td>
-                        <td>{{ result.sex }}</td>
-                        <td>{{ result.disease }}</td>
-                        <td>
-                            {% if result.audio_file %}
-                            <a href="{{ result.audio_file }}" target="_blank">Listen to Audio</a>
-                            {% else %}
-                            Not available
-                            {% endif %}
-                        </td>
+                        <td>{{ result.diagnosis_name }}</td>
+                        <td>{{ result.recording_index }}</td>
+                        <td>{{ result.chest_location }}</td>
+                        <td>{{ result.acquisition_model }}</td>
+                        <td>{{ result.recording_equipment }}</td>
+                        <td><a href="{{ result.annotation_file }}" target="_blank">View Annotation</a></td>
+                        <td>{{ result.respiratory_cycles }}</td>
+                        <td><a href="{{ result.audio_file }}" target="_blank">Listen to Audio</a></td>
                         <td>
                             {% if result.similarity_score %}
                             {{ result.similarity_score|floatformat:2 }}

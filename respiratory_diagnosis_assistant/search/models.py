@@ -1,33 +1,39 @@
-from django.db import models
+from djongo import models
 
 class AudioFile(models.Model):
     file = models.FileField(upload_to='audio_files/')
     filename = models.CharField(max_length=255, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'search_audiofile'
     
-class Patient(models.Model):
-    patient_number = models.IntegerField(unique=True)
+class Patients(models.Model):
+    patient = models.AutoField(primary_key=True)
     age = models.IntegerField()
     sex = models.CharField(max_length=10)
-    bmi = models.FloatField(null=True, blank=True)
+    adult_bmi = models.FloatField(null=True, blank=True)
     child_weight = models.FloatField(null=True, blank=True)
     child_height = models.FloatField(null=True, blank=True)
 
-class AudioRecording(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    recording_index = models.IntegerField()
-    chest_location = models.CharField(max_length=100)
-    acquisition_mode = models.CharField(max_length=100)
-    recording_equipment = models.CharField(max_length=100)
-    file_path = models.CharField(max_length=200)
+    class Meta:
+        db_table = 'search_patients'  # MongoDB collection name as specified
 
-class Annotation(models.Model):
-    audio_recording = models.ForeignKey(AudioRecording, on_delete=models.CASCADE)
-    begin_cycle = models.FloatField()
-    end_cycle = models.FloatField()
-    crackles = models.BooleanField()
-    wheezes = models.BooleanField()
+class RespiratoryData(models.Model):
+    patient = models.ForeignKey(Patients, related_name='respiratory_data', on_delete=models.CASCADE)
+    recording_index = models.IntegerField()
+    chest_location = models.CharField(max_length=50)
+    acquisition_model = models.CharField(max_length=50)
+    recording_equipment = models.CharField(max_length=100)
+    annotation_file = models.CharField(max_length=255)
+    sound_file_path = models.CharField(max_length=255)
+
+    class Meta:
+        db_table = 'search_respiratory_data'  # MongoDB collection name as specified
 
 class Diagnosis(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    disease = models.CharField(max_length=100)
+    patient = models.ForeignKey(Patients, related_name='diagnoses', on_delete=models.CASCADE)
+    diagnosis_name = models.CharField(max_length=100)
+    
+    class Meta:
+        db_table = 'search_diagnosis'

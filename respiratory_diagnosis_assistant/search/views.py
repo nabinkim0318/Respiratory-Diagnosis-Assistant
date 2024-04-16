@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .forms import SearchForm
-from .models import AudioFile, Patient, AudioRecording, Diagnosis
+from .models import AudioFile, Patients, RespiratoryData, Diagnosis
 from django.http import JsonResponse
 from .audio_utils import preprocess_audio, predict_from_features
 import tensorflow as tf
@@ -18,63 +18,62 @@ def search(request):
         form = SearchForm(request.POST, request.FILES)
         if form.is_valid():
             input_type = form.cleaned_data['input_type']
+            search_results = []
             if input_type == 'text':
                 query = form.cleaned_data['query']
-                possible_diseases = Diagnosis.objects.values_list('disease', flat=True).distinct()
-                close_matches = get_close_matches(query, possible_diseases, n=1, cutoff=0.6)
+                matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=query).select_related('patient')
+                for diag in matched_diagnoses:
+                    for resp in diag.patient.respiratory_data_set.all():
+                        search_results.append({
+                            'patient_number': diag.patient.patient,
+                            'age': diag.patient.age,
+                            'sex': diag.patient.sex,
+                            'disease': diag.diagnosis_name,
+                            'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.sound_file_path}",
+                            'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.annotation_file}",
+                            'recording_index': resp.recording_index,
+                            'chest_location': resp.chest_location,
+                            'acquisition_model': resp.acquisition_model,
+                            'recording_equipment': resp.recording_equipment,
+                            'respiratory_cycles': resp.respiratory_cycles,
+                            'similarity_score': None  # Not applicable here
+                        })
                 
-                if close_matches:
-                    matched_diagnoses = Diagnosis.objects.filter(disease__iexact=close_matches[0]).select_related('patient')
-                    search_results = [{
-                        'patient_number': diag.patient.patient_number, 
-                        'age': diag.patient.age, 
-                        'sex': diag.patient.sex, 
-                        'audio_file': record.patient.audiofile_set.first().file.url,
-                        'disease': diag.disease, 
-                        'diagnosis_id': diag.id}
-                        for diag in matched_diagnoses
-                    ]   
-                else:
-                    return render(request, 'search/search.html', {'form': form, 'message': 'No close matches found for your query.'})
-            
+                return render(request, 'search/result.html', {'search_results': search_results})
+
             elif input_type == 'audio':
-                audio_file = form.cleaned_data['audio_file']
+                audio_file = request.FILES['audio_file']
+                features = preprocess_audio(audio_file)
+                prediction = predict_from_features(model, features)
+                print(prediction)
+                predicted_scores = np.squeeze(prediction)
                 
-                if not audio_file:
-                    return JsonResponse({'error': 'No audio file provided'}, status=400)
+                print(predicted_scores)
 
-                try:
-                    features = preprocess_audio(audio_file)
-                    prediction = predict_from_features(model, features)
-                    disease_indices = np.where(prediction > 0.5)[1]  
-                    predicted_diseases = [Diagnosis.objects.get(id=index) for index in disease_indices]
+                # Assuming a threshold of 0.5 for similarity scores
+                predicted_indices = np.where(predicted_scores > 0.5)[0]
+                predicted_diagnoses = Diagnosis.objects.filter(patient__in=predicted_indices).select_related('patient')
+                
+                search_results = [{
+                    'patient': diag.patient.patient,
+                    'diagnosis_name': diag.diagnosis_name,
+                    'recording_index': resp.recording_index,
+                    'chest_location': resp.chest_location,
+                    'acquisition_model': resp.acquisition_model,
+                    'recording_equipment': resp.recording_equipment,
+                    'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.annotation_file}",
+                    'respiratory_cycles': resp.respiratory_cycles,
+                    'sound_file_path': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.sound_file_path}",
+                    'similarity_score': float(predicted_scores[diag.id])
+                } for diag in predicted_diagnoses for resp in diag.patient.respiratory_data_set.all()]
 
-                    for disease in predicted_diseases:
-                        similar_records = Diagnosis.objects.filter(disease=disease.disease).select_related('patient')
-                        for record in similar_records:
-                            search_results.append({
-                                'patient_number': record.patient.patient_number,
-                                'age': record.patient.age,
-                                'sex': record.patient.sex,
-                                'audio_file': record.patient.audiofile_set.first().file.url,
-                                'disease': record.disease,
-                                'similarity_score': float(prediction[0][disease.id])  
-                            })
-                except Exception as e:
-                    return JsonResponse({'error': str(e)}, status=500)
-            return render(request, 'search/result.html', {'search_results': search_results})
+                return render(request, 'search/result.html', {'search_results': search_results})
+                
         else:
-            return render(request, 'search/search.html', {'form': form})
+            return render(request, 'search/search.html', {'form': form, 'message': 'Form is not valid. Please check your input.'})
     else:
         form = SearchForm()
-    return render(request, 'search/search.html', {'form': form})
-
-def convert_predictions_to_diseases(predictions):
-    disease_names = ["COPD" ,"Bronchiolitis ", "Bronchiectasis", "Pneumoina", "URTI", "Healthy"]
-    return [disease for idx, disease in enumerate(disease_names) if predictions[idx] > 0.75] 
-
-def find_related_audios(diseases_predicted):
-    return AudioFile.objects.filter(diagnosis__disease__in=diseases_predicted).select_related('diagnosis')
+        return render(request, 'search/search.html', {'form': form})
 
 def about(request):
     return render(request, 'search/about.html')
