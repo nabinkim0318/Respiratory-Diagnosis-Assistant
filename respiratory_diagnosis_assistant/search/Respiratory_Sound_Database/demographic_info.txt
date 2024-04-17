@@ -1,4 +1,4 @@
-patient age sex adult_bmi child_weight child_height
+patient_id age sex adult_bmi child_weight child_height
 101 3 F NULL 19 99
 102 0.75 F NULL 9.8 73
 103 70 F 33 NULL NULL

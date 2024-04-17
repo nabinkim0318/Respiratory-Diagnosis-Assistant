@@ -8,31 +8,34 @@ class AudioFile(models.Model):
     class Meta:
         db_table = 'search_audiofile'
     
+class RespiratoryData(models.Model):
+    id = models.IntegerField(primary_key=True)
+    recording_index = models.CharField(max_length=3)
+    chest_location = models.CharField(max_length=2)
+    acquisition_model = models.CharField(max_length=2)
+    recording_equipment = models.CharField(max_length=20)
+    annotation_file = models.CharField(max_length=255)
+    respiratory_cycles = models.JSONField()  # Using JSONField to store array data
+    sound_file_path = models.CharField(max_length=255)
+
+
 class Patients(models.Model):
-    patient = models.AutoField(primary_key=True)
+    patient_id = models.AutoField(primary_key=True)
     age = models.IntegerField()
     sex = models.CharField(max_length=10)
     adult_bmi = models.FloatField(null=True, blank=True)
     child_weight = models.FloatField(null=True, blank=True)
     child_height = models.FloatField(null=True, blank=True)
+    respiratory_data = models.ArrayField(
+        model_container=RespiratoryData,
+        null=True, blank=True
+    )
 
     class Meta:
-        db_table = 'search_patients'  # MongoDB collection name as specified
-
-class RespiratoryData(models.Model):
-    patient = models.ForeignKey(Patients, related_name='respiratory_data', on_delete=models.CASCADE)
-    recording_index = models.IntegerField()
-    chest_location = models.CharField(max_length=50)
-    acquisition_model = models.CharField(max_length=50)
-    recording_equipment = models.CharField(max_length=100)
-    annotation_file = models.CharField(max_length=255)
-    sound_file_path = models.CharField(max_length=255)
-
-    class Meta:
-        db_table = 'search_respiratory_data'  # MongoDB collection name as specified
+        db_table = 'search_patients'
 
 class Diagnosis(models.Model):
-    patient = models.ForeignKey(Patients, related_name='diagnoses', on_delete=models.CASCADE)
+    patient_id = models.ForeignKey(Patients, related_name='diagnoses', on_delete=models.CASCADE)
     diagnosis_name = models.CharField(max_length=100)
     
     class Meta:
