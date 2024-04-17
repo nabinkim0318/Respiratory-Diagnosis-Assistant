@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .forms import SearchForm
-from .models import AudioFile, Patients, RespiratoryData, Diagnosis
+from .models import Patients, RespiratoryData, Diagnosis
 from django.http import JsonResponse
 from .audio_utils import preprocess_audio, predict_from_features
 import tensorflow as tf
@@ -21,21 +21,22 @@ def search(request):
             search_results = []
             if input_type == 'text':
                 query = form.cleaned_data['query']
-                matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=query).select_related('patient')
+                matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=query).select_related('patient_id')
                 for diag in matched_diagnoses:
-                    for resp in diag.patient.respiratory_data_set.all():
+                    patient = diag.patient_id
+                    for resp in patient.respiratory_data:
                         search_results.append({
-                            'patient_number': diag.patient.patient,
-                            'age': diag.patient.age,
-                            'sex': diag.patient.sex,
+                            'patient_number': patient.patient_id,
+                            'age': patient.age,
+                            'sex': patient.sex,
                             'disease': diag.diagnosis_name,
-                            'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.sound_file_path}",
-                            'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.annotation_file}",
-                            'recording_index': resp.recording_index,
-                            'chest_location': resp.chest_location,
-                            'acquisition_model': resp.acquisition_model,
-                            'recording_equipment': resp.recording_equipment,
-                            'respiratory_cycles': resp.respiratory_cycles,
+                            'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp['sound_file_path']}",
+                            'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp['annotation_file']}",
+                            'recording_index': resp['recording_index'],
+                            'chest_location': resp['chest_location'],
+                            'acquisition_model': resp['acquisition_model'],
+                            'recording_equipment': resp['recording_equipment'],
+                            'respiratory_cycles': resp['respiratory_cycles'],
                             'similarity_score': None  # Not applicable here
                         })
                 
@@ -45,28 +46,29 @@ def search(request):
                 audio_file = request.FILES['audio_file']
                 features = preprocess_audio(audio_file)
                 prediction = predict_from_features(model, features)
-                print(prediction)
                 predicted_scores = np.squeeze(prediction)
                 
                 print(predicted_scores)
-
-                # Assuming a threshold of 0.5 for similarity scores
                 predicted_indices = np.where(predicted_scores > 0.5)[0]
-                predicted_diagnoses = Diagnosis.objects.filter(patient__in=predicted_indices).select_related('patient')
+                predicted_diagnoses = Diagnosis.objects.filter(id__in=predicted_indices).select_related('patient_id')
+                for diag in predicted_diagnoses:
+                    patient = diag.patient_id
+                    for resp in patient.respiratory_data:
+                        search_results.append({
+                            'patient_number': patient.patient_id,
+                            'age': patient.age,
+                            'sex': patient.sex,
+                            'disease': diag.diagnosis_name,
+                            'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp['sound_file_path']}",
+                            'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp['annotation_file']}",
+                            'recording_index': resp['recording_index'],
+                            'chest_location': resp['chest_location'],
+                            'acquisition_model': resp['acquisition_model'],
+                            'recording_equipment': resp['recording_equipment'],
+                            'respiratory_cycles': resp['respiratory_cycles'],
+                            'similarity_score': float(predicted_scores[diag.id])  # Assuming diag.id matches the index used in predictions
+                        })
                 
-                search_results = [{
-                    'patient': diag.patient.patient,
-                    'diagnosis_name': diag.diagnosis_name,
-                    'recording_index': resp.recording_index,
-                    'chest_location': resp.chest_location,
-                    'acquisition_model': resp.acquisition_model,
-                    'recording_equipment': resp.recording_equipment,
-                    'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.annotation_file}",
-                    'respiratory_cycles': resp.respiratory_cycles,
-                    'sound_file_path': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.sound_file_path}",
-                    'similarity_score': float(predicted_scores[diag.id])
-                } for diag in predicted_diagnoses for resp in diag.patient.respiratory_data_set.all()]
-
                 return render(request, 'search/result.html', {'search_results': search_results})
                 
         else:
@@ -74,7 +76,7 @@ def search(request):
     else:
         form = SearchForm()
         return render(request, 'search/search.html', {'form': form})
-
+    
 def about(request):
     return render(request, 'search/about.html')
 
