@@ -1,5 +1,6 @@
 from djongo import models
 from django.db import connection
+from pymongo import MongoClient
  
 class RespiratoryData(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -30,12 +31,15 @@ class Patients(models.Model):
         
     @staticmethod
     def calculate_average_cycle_durations():
-        cursor = connection.cursor()
+        client = MongoClient('mongodb+srv://cs4440_8:cs4440_8@respiratory-diagnosis.hwlbmw8.mongodb.net/?retryWrites=true&w=majority&appName=respiratory-diagnosis')
+        db = client['respiratory-analysis']
+        collection = db['search_patients']
+        
         pipeline = [
             {"$unwind": "$respiratory_data"},
             {"$unwind": "$respiratory_data.respiratory_cycles"},
             {"$group": {
-                "_id": "$_id",
+                "patient_id": "$patient_id",
                 "average_cycle_duration": {
                     "$avg": {
                         "$subtract": [
@@ -46,8 +50,8 @@ class Patients(models.Model):
                 }
             }}
         ]
-        cursor.execute(pipeline)
-        results = cursor.fetchall()
+        results = list(collection.aggregate(pipeline))
+        client.close()
         return results
 
 class Diagnosis(models.Model):
