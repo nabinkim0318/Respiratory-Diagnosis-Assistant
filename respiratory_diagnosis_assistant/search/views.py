@@ -2,6 +2,11 @@ from django.shortcuts import render
 from datetime import datetime
 from .forms import SearchForm
 from .models import AudioFile
+import os
+from django.core.exceptions import ValidationError
+from django.http import HttpResponse
+from pydub import AudioSegment
+
 
 def home(request):
     return render(request, 'search/home.html')
@@ -16,11 +21,29 @@ def search(request):
                 # Handle text search
                 pass
             elif input_type == 'audio':
-                # Handle audio file upload
                 audio_file = form.cleaned_data['audio_file']
-                AudioFile.objects.create(file=audio_file)
-                # Process audio file
-                pass
+                try:
+                    # Check if the file is not empty
+                    if audio_file.size == 0:
+                        raise ValidationError("Empty audio file")
+
+                    # Check file extension
+                    ext = os.path.splitext(audio_file.name)[1]
+                    if ext.lower() not in ['.mp3', '.wav']:
+                        raise ValidationError("Invalid file format, only .mp3 and .wav are allowed")
+
+                    # Optional: Check audio duration - This requires analyzing the file, possibly with a library like pydub
+                    audio = AudioSegment.from_file(audio_file)
+                    duration_seconds = len(audio) / 1000
+                    if duration_seconds < 10 or duration_seconds > 90:
+                        raise ValidationError("Audio file must be between 10 and 90 seconds")
+
+                    AudioFile.objects.create(file=audio_file)
+                    # Continue with existing process
+
+                except ValidationError as e:
+                    return render(request, 'search/search.html', {'form': form, 'error_message': str(e)})
+
             # For now, let's assume we have some dummy search results
             search_results = [
                 {'audio_file': 'audio1.mp3', 'metadata': {'patient_id': '123', 'diagnosis': 'Asthma'}, 'similarity_score': 0.75},

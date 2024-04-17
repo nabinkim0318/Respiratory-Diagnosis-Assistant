@@ -20,6 +20,13 @@
 </head>
 <body>
     <h1>Respiratory Search</h1>
+
+    {% if error_message %}
+        <div style="color: red; margin-bottom: 20px;">
+            {{ error_message }}
+        </div>
+    {% endif %}
+    
     <form id="searchForm" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <input type="text" id="textInput" name="query" placeholder="Enter text">
