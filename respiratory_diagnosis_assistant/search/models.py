@@ -31,15 +31,24 @@ class Patients(models.Model):
         
     @staticmethod
     def calculate_average_cycle_durations():
-        client = MongoClient('mongodb+srv://cs4440_8:cs4440_8@respiratory-diagnosis.hwlbmw8.mongodb.net/?retryWrites=true&w=majority&appName=respiratory-diagnosis')
-        db = client['respiratory-analysis']
+        uri = "mongodb+srv://cs4440_8:cs4440_8@respiratory-diagnosis.hwlbmw8.mongodb.net/?retryWrites=true&w=majority&appName=respiratory-diagnosis"
+        # Create a new client and connect to the server
+        client = MongoClient(uri)
+        # Send a ping to confirm a successful connection
+        try:
+            client.admin.command('ping')
+            print("Pinged your deployment. You successfully connected to MongoDB!")
+        except Exception as e:
+            print(e)
+        
+        db = client['respiratory-diagnosis']
         collection = db['search_patients']
         
         pipeline = [
             {"$unwind": "$respiratory_data"},
             {"$unwind": "$respiratory_data.respiratory_cycles"},
             {"$group": {
-                "patient_id": "$patient_id",
+                "_id": "$patient_id",
                 "average_cycle_duration": {
                     "$avg": {
                         "$subtract": [
