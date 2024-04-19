@@ -2,6 +2,14 @@
 <html>
 <head>
     <title>Search Results</title>
+    <script>
+        // Function to fetch and display content of text files
+        async function fetchText(url, elementId) {
+            const response = await fetch(url);
+            const text = await response.text();
+            document.getElementById(elementId).innerText = text;
+        }
+    </script>
 </head>
 <body>
     <h1>Search Results</h1>
@@ -32,9 +40,16 @@
                         <td>{{ result.chest_location }}</td>
                         <td>{{ result.acquisition_model }}</td>
                         <td>{{ result.recording_equipment }}</td>
-                        <td><a href="{{ result.annotation_file }}" target="_blank">View Annotation</a></td>
+                        <td><a href="#" onclick="fetchText('{{ result.annotation_file }}', 'text-content-{{ forloop.counter }}'); return false;">View Annotation</a>
+                            <div id="text-content-{{ forloop.counter }}" style="white-space: pre-wrap;"></div>
+                        </td>
                         <td>{{ result.respiratory_cycles }}</td>
-                        <td><a href="{{ result.audio_file }}" target="_blank">Listen to Audio</a></td>
+                        <td>
+                            <audio controls>
+                                <source src="{{ result.audio_file }}" type="audio/wav">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </td>
                         <td>
                             {% if result.similarity_score %}
                             {{ result.similarity_score|floatformat:2 }}

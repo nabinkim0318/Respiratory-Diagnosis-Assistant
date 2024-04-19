@@ -6,12 +6,22 @@ from .audio_utils import preprocess_audio, predict_from_features
 import tensorflow as tf
 from difflib import get_close_matches
 import numpy as np
+import boto3
+from django.conf import settings
 
 # Load the model on startup
 model = tf.keras.models.load_model('gru_model.tf')
 
 def home(request):
     return render(request, 'search/home.html')
+
+def generate_presigned_url(object_name):
+    s3_client = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+    presigned_url = s3_client.generate_presigned_url('get_object',
+                                                     Params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
+                                                             'Key': object_name},
+                                                     ExpiresIn=3600)
+    return presigned_url
 
 def search(request):
     if request.method == 'POST':
@@ -39,7 +49,9 @@ def search(request):
                             'respiratory_cycles': resp['respiratory_cycles'],
                             'similarity_score': None  # Not applicable here
                         })
-                
+                for result in search_results:
+                    result['annotation_file'] = generate_presigned_url(result['annotation_file'])
+                    result['audio_file'] = generate_presigned_url(result['audio_file'])
                 return render(request, 'search/result.html', {'search_results': search_results})
 
             elif input_type == 'audio':
@@ -68,9 +80,10 @@ def search(request):
                             'respiratory_cycles': resp['respiratory_cycles'],
                             'similarity_score': float(predicted_scores[diag.id])  # Assuming diag.id matches the index used in predictions
                         })
-                
-                return render(request, 'search/result.html', {'search_results': search_results})
-                
+                for result in search_results:
+                    result['annotation_file'] = generate_presigned_url(result['annotation_file'])
+                    result['audio_file'] = generate_presigned_url(result['audio_file'])
+                return render(request, 'search/result.html', {'search_results': search_results})                
         else:
             return render(request, 'search/search.html', {'form': form, 'message': 'Form is not valid. Please check your input.'})
     else:
