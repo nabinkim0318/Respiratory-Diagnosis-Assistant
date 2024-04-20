@@ -1,66 +1,72 @@
-{% comment %} <!DOCTYPE html>
-<html>
+{% load static %}
+<link rel="stylesheet" href="{% static 'search/style.css' %}">
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Page</title>
 </head>
 <body>
-    <h1>Respiratory Search</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Search</button>
-    </form>
-</body>
-</html> {% endcomment %}
+
+    <!-- Top Banner -->
+    <header>
+        <!-- Page name on the left -->
+        <h1>Search Page</h1>
+        <!-- Links to other pages on the right -->
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'search' %}">Search</a></li>
+                <li><a href="{% url 'help' %}">Help/FAQ</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
 
 <!DOCTYPE html>
 <html>
 <head>
     <title>Search Page</title>
 </head>
-<body>
-    <h1>Respiratory Search</h1>
+    <br>
+    
+    <!-- Search Form -->
     <form id="searchForm" method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        
+        <!-- Text Input -->
+        <label for="textInput">Enter text:</label>
         <input type="text" id="textInput" name="query" placeholder="Enter text">
 
         <br><br>
 
-        <input type="file" id="audioInput" name="audioFile">
-        
+        <!-- Audio Input -->
+        <label for="audioInput">Upload audio:</label>
+        <input type="file" id="audioInput" name="audioFile" accept=".wav, .mp3">
+        <small>(Accepted formats: .wav, .mp3; Duration: 10-90 seconds)</small>
+
         <br><br>
         
+        <!-- Input Type Selection -->
+        <label for="textOption">Input type:</label>
         <input type="radio" id="textOption" name="inputType" value="text" checked>
         <label for="textOption">Text</label>
-        
-        <br>
         
         <input type="radio" id="audioOption" name="inputType" value="audio">
         <label for="audioOption">Audio</label>
 
         <br><br>
         
+        <!-- Search Button -->
         <input type="submit" value="Search">
     </form>
 
+    <!-- JavaScript for form submission and validation -->
     <script>
-        // Get form and input elements
-        const form = document.getElementById('searchForm');
-        const textInput = document.getElementById('textInput');
-        const audioInput = document.getElementById('audioInput');
-
-        // Add event listener for form submission
-        form.addEventListener('submit', function(event) {
-            // Check if text input is selected
-            if (document.getElementById('textOption').checked) {
-                // Update form action for text search
-                form.action = "{% url 'text_results' %}";
-            } else if (document.getElementById('audioOption').checked) {
-                // Update form action for audio search
-                form.action = "{% url 'audio_results' %}";
-            }
-            // Form submission continues with the updated action
-        });
+        // JavaScript code here
     </script>
 </body>
 </html>
