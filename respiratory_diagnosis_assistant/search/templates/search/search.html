@@ -32,41 +32,76 @@
     <title>Search Page</title>
 </head>
     <br>
-    
+
     <!-- Search Form -->
-    <form id="searchForm" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        
-        <!-- Text Input -->
-        <label for="textInput">Enter text:</label>
-        <input type="text" id="textInput" name="query" placeholder="Enter text">
+    
+<form action="/submit" method="post" enctype="multipart/form-data">
+  
+  <h2>Search Type:</h2>
+  <input type="radio" id="condition" name="searchType" value="condition" checked>
+  <label for="condition">Search by Condition</label><br>
+  <input type="radio" id="audio" name="searchType" value="audio">
+  <label for="audio">Search by Audio File</label><br><br>
+  
+  <div id="conditionDiv">
+    <label for="conditionSelect">Condition:</label>
+    <select id="conditionSelect" name="condition">
+      <option value=null>--pick condition--</option>
+      <option value="URTI">URTI</option>
+      <option value="Asthma">Asthma</option>
+      <option value="COPD">COPD</option>
+      <option value="Bronchiectasis">Bronchiectasis</option>
+      <option value="Pneumonia">Pneumonia</option>
+      <option value="Bronchiolitis">Bronchiolitis</option>
+    </select>
+  </div>
 
-        <br><br>
+  
+  <div id="audioDiv">
+    <label for="audioFile">Audio File:</label>
+    <input type="file" id="audioFile" name="audioFile" accept="audio/*" required>
+    <br> <small>(Accepted formats: .wav, .mp3; Duration: 10-90 seconds)</small>
+  </div>
+  
+  <br>
 
-        <!-- Audio Input -->
-        <label for="audioInput">Upload audio:</label>
-        <input type="file" id="audioInput" name="audioFile" accept=".wav, .mp3">
-        <small>(Accepted formats: .wav, .mp3; Duration: 10-90 seconds)</small>
+  <h2>Optional Demographic Information:</h2>
+  
+  <label for="age">Age:</label>
+  <input type="number" id="age" name="age"><br>
+  
+  <label for="sex">Sex:</label>
+  <select id="sex" name="sex">
+    <option value=null>--pick sex--</option>
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+  </select><br>
+  
+  <label for="bmi">BMI:</label>
+  <input type="number" id="bmi" name="bmi" step="0.01"><br>
+  
+  <label for="childWeight">Child Weight (kg):</label>
+  <input type="number" id="childWeight" name="childWeight" step="0.01"><br>
+  
+  <label for="childHeight">Child Height (cm):</label>
+  <input type="number" id="childHeight" name="childHeight" step="0.01"><br>
+  
+  <br>
+  
+  <input type="submit" value="Submit">
+</form>
 
-        <br><br>
-        
-        <!-- Input Type Selection -->
-        <label for="textOption">Input type:</label>
-        <input type="radio" id="textOption" name="inputType" value="text" checked>
-        <label for="textOption">Text</label>
-        
-        <input type="radio" id="audioOption" name="inputType" value="audio">
-        <label for="audioOption">Audio</label>
+<script>
+document.querySelector('input[name="searchType"]').addEventListener('change', function() {
+  if (this.value === 'condition') {
+    document.getElementById('conditionDiv').style.display = 'block';
+    document.getElementById('audioDiv').style.display = 'none';
+  } else {
+    document.getElementById('conditionDiv').style.display = 'none';
+    document.getElementById('audioDiv').style.display = 'block';
+  }
+});
+</script>
 
-        <br><br>
-        
-        <!-- Search Button -->
-        <input type="submit" value="Search">
-    </form>
-
-    <!-- JavaScript for form submission and validation -->
-    <script>
-        // JavaScript code here
-    </script>
 </body>
 </html>
