@@ -1,12 +1,45 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'search/style.css' %}">
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Home Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    {% comment %} <link rel="stylesheet" href="{% static 'search/style.css' %}"> {% endcomment %}
 </head>
 <body>
-    <h1>Welcome to the Respiratory Search App</h1>
-    <p>This is the landing page of the application.</p>
-    <p>Here, you can find information about respiratory conditions and search for related content.</p>
-    <a href="{% url 'search' %}">Go to Search Page</a>
+    <!-- Top Banner -->
+    <header>
+        <!-- Page name on the left -->
+        <h1>Respiratory Search App</h1>
+        <!-- Links to other pages on the right -->
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'search' %}">Search</a></li>
+                <li><a href="{% url 'help' %}">Help/FAQ</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <h2>Project Goal</h2>
+    <p>The primary goal of this project is to develop a robust, user-friendly application optimized for querying lung sound audio files. We aim to enhance the diagnostic process by enabling matching between specific lung diseases and their characteristic sound patterns. By leveraging advanced machine learning techniques and optimized database management practices, we intend to streamline the querying process. This will facilitate immediate access to relevant audio samples based on disease input and enable predictive disease identification from lung sound patterns. Additionally, we aim to enable users, including healthcare professionals and patients, to contribute new audio recordings and metadata to enrich the database and improve the accuracy of disease classification.</p>
+
+    <h2>Respiratory Conditions</h2>
+    <!-- Brief descriptions of respiratory conditions -->
+    <ul>
+        <li><strong>URTI (Upper Respiratory Tract Infection):</strong> Common viral infection affecting the nose, throat, and upper airways.</li>
+        <li><strong>Asthma:</strong> Chronic inflammatory disease of the airways characterized by recurring episodes of wheezing, breathlessness, chest tightness, and coughing.</li>
+        <li><strong>COPD (Chronic Obstructive Pulmonary Disease):</strong> Progressive lung disease that makes it difficult to breathe due to airflow obstruction and inflammation.</li>            <li><strong>LRTI (Lower Respiratory Tract Infection):</strong> Infection affecting the lungs and airways, including conditions like bronchitis and pneumonia.</li>
+        <li><strong>Bronchiectasis:</strong> Condition where the airways in the lungs become widened and scarred, leading to recurrent lung infections and breathing difficulties.</li>
+        <li><strong>Pneumonia:</strong> Infection that inflames air sacs in one or both lungs, causing cough with phlegm, fever, chills, and difficulty breathing.</li>
+        <li><strong>Bronchiolitis:</strong> Common respiratory illness in infants and young children, typically caused by a viral infection, leading to inflammation and mucus buildup in the small airways of the lungs.</li>
+    </ul>
+
+
 </body>
 </html>

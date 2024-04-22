@@ -1,29 +1,99 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'search/style.css' %}">
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Search Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
 </head>
 <body>
-    <h1>Respiratory Search</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-        <div>
-            {{ form.query.label_tag }}: {{ form.query }}
-            {{ form.query.errors }}
-        </div>
-        <div>
-            {{ form.audio_file.label_tag }}: {{ form.audio_file }}
-            {{ form.audio_file.errors }}
-        </div>
-        <div>
-            {{ form.input_type.label_tag }}: {{ form.input_type }}
-        </div>
-        <button type="submit">Search</button>
-    </form>
+    <!-- Top Banner -->
+    <header>
+        <!-- Page name on the left -->
+        <h1>Search</h1>
+        <!-- Links to other pages on the right -->
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'search' %}">Search</a></li>
+                <li><a href="{% url 'help' %}">Help/FAQ</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+<!-- Search Form -->
+<form action="/submit" method="post" enctype="multipart/form-data">
+  
+  <h2>Search Type:</h2>
+  <input type="radio" id="condition" name="searchType" value="condition" checked>
+  <label for="condition">Search by Condition: output the top 5 audio files which best match the condition and additional demographic information</label><br>
+  <input type="radio" id="audio" name="searchType" value="audio">
+  <label for="audio">Search by Audio File: output the condition and confidence score based on the audio file and additional demographic information</label><br><br>
+  
+  <div id="conditionDiv">
+    <label for="conditionSelect">Condition:</label>
+    <select id="conditionSelect" name="condition">
+      <option value=null></option>
+      <option value="URTI">URTI</option>
+      <option value="Asthma">Asthma</option>
+      <option value="COPD">COPD</option>
+      <option value="Bronchiectasis">Bronchiectasis</option>
+      <option value="Pneumonia">Pneumonia</option>
+      <option value="Bronchiolitis">Bronchiolitis</option>
+    </select>
+  </div>
 
-    {% if message %}
-    <p>{{ message }}</p>
-    {% endif %}
+  <div id="audioDiv" style="display:none;">
+    <label for="audioFile">Audio File:</label>
+    <input type="file" id="audioFile" name="audioFile" accept="audio/*" required>
+    <br> <small>(Accepted formats: .wav, .mp3; Duration: 10-90 seconds)</small>
+  </div>
+  
+  <br>
+
+  <h2>Optional Demographic Information:</h2>
+  <p>While this information is optional, providing this will give a more accrate output.</p>
+  
+  <label for="age">Age:</label>
+  <input type="number" id="age" name="age"><br>
+  
+  <label for="sex">Sex:</label>
+  <select id="sex" name="sex">
+    <option value=null></option>
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+  </select><br>
+  
+  <label for="bmi">Adult BMI:</label>
+  <input type="number" id="bmi" name="bmi" step="0.01"><br>
+  
+  <label for="childWeight">Child Weight (kg):</label>
+  <input type="number" id="childWeight" name="childWeight" step="0.01"><br>
+  
+  <label for="childHeight">Child Height (cm):</label>
+  <input type="number" id="childHeight" name="childHeight" step="0.01"><br>
+  
+  <br>
+  
+  <input type="submit" value="Submit">
+</form>
+
+<script>
+document.querySelectorAll('input[name="searchType"]').forEach(function(input) {
+  input.addEventListener('change', function() {
+    if (this.value === 'condition') {
+      document.getElementById('conditionDiv').style.display = 'block';
+      document.getElementById('audioDiv').style.display = 'none';
+    } else {
+      document.getElementById('conditionDiv').style.display = 'none';
+      document.getElementById('audioDiv').style.display = 'block';
+    }
+  });
+});
+</script>
+
 </body>
 </html>

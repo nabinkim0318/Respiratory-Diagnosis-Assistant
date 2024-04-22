@@ -1,0 +1,49 @@
+/* CSS styles for the top banner */
+header {
+    background-color: #0B2545; /* Background color changed to #3b406b */
+    color: #eef4ed;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 30px;
+    color: #eef4ed; /* Title color changed to #c9d6f2 */
+}
+
+header nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+header nav ul li {
+    display: inline;
+    margin-left: 10px;
+}
+
+header nav ul li:first-child {
+    margin-left: 0;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    color: #8da9c4; /* Links color changed to #7585f8 */
+}
+
+header nav ul li a:hover {
+    text-decoration: underline;
+}
+
+
+body {
+    background-color: #eef4ed;
+}
+
+body h2{
+    color: 0B2545
+}
+  
