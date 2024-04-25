@@ -53,7 +53,7 @@ def search(request):
                 for result in search_results:
                     result['annotation_file'] = generate_presigned_url(result['annotation_file'])
                     result['audio_file'] = generate_presigned_url(result['audio_file'])
-                return render(request, 'search/result.html', {'search_results': search_results})
+                return render(request, 'search/text_result.html', {'search_results': search_results})
 
             elif input_type == 'audio':
                 audio_file = request.FILES['audio_file']
@@ -84,7 +84,7 @@ def search(request):
                 for result in search_results:
                     result['annotation_file'] = generate_presigned_url(result['annotation_file'])
                     result['audio_file'] = generate_presigned_url(result['audio_file'])
-                return render(request, 'search/result.html', {'search_results': search_results})                
+                return render(request, 'search/audio_result.html', {'search_results': search_results})                
         else:
             return render(request, 'search/search.html', {'form': form, 'message': 'Form is not valid. Please check your input.'})
     else:
