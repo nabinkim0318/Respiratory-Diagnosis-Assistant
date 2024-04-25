@@ -101,7 +101,7 @@ DATABASES = {
         'ENFORCE_SCHEMA': True,
         'CLIENT': {
             'host': 'mongodb+srv://cs4440_8:cs4440_8@respiratory-diagnosis.hwlbmw8.mongodb.net/?retryWrites=true&w=majority&appName=respiratory-diagnosis',
-            'port': 7000,
+            'port': 27017,
             'username': 'cs4440_8',  
             'password': 'cs4440_8',
         }
