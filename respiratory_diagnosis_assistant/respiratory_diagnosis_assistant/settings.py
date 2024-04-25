@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+from storages.backends.s3boto3 import S3Boto3Storage
 from pathlib import Path
 import os
 
