@@ -41,8 +41,8 @@ def search(request):
                             'age': patient.age,
                             'sex': patient.sex,
                             'disease': diag.diagnosis_name,
-                            'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp['sound_file_path']}",
-                            'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp['annotation_file']}",
+                            'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/%7Bresp['sound_file_path']%7D",
+                            'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/%7Bresp['annotation_file']%7D",
                             'recording_index': resp['recording_index'],
                             'chest_location': resp['chest_location'],
                             'acquisition_model': resp['acquisition_model'],
@@ -57,6 +57,23 @@ def search(request):
 
             elif input_type == 'audio':
                 audio_file = request.FILES['audio_file']
+
+                # Check if audio file exists and is not empty
+                if not audio_file:
+                    messages.error(request, 'Please select an audio file.')
+                    return render(request, 'search/search.html', {'form': form})
+
+                # Check if the audio file format is valid (only allow .wav and .mp3)
+                if not audio_file.name.endswith(('.wav', '.mp3')):
+                    messages.error(request, 'Please upload an audio file in WAV or MP3 format.')
+                    return render(request, 'search/search.html', {'form': form})
+
+                # Check if the audio file duration is within the specified range (10 to 90 seconds)
+                audio_duration = get_audio_duration(audio_file)
+                if audio_duration <= 10 or audio_duration >= 90:
+                    messages.error(request, 'Audio file duration should be between 10 and 90 seconds.')
+                    return render(request, 'search/search.html', {'form': form})
+
                 features = preprocess_audio(audio_file)
                 prediction = predict_from_features(model, features)
                 predicted_scores = np.squeeze(prediction)
@@ -72,8 +89,8 @@ def search(request):
                             'age': patient.age,
                             'sex': patient.sex,
                             'disease': diag.diagnosis_name,
-                            'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp['sound_file_path']}",
-                            'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp['annotation_file']}",
+                            'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/%7Bresp['sound_file_path']%7D",
+                            'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/%7Bresp['annotation_file']%7D",
                             'recording_index': resp['recording_index'],
                             'chest_location': resp['chest_location'],
                             'acquisition_model': resp['acquisition_model'],
