@@ -7,4 +7,3 @@ pandas
 librosa
 numpy
 boto3
-difflib
