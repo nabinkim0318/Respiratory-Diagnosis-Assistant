@@ -9,4 +9,3 @@ numpy
 boto3
 djongo
 pytz
-librosa
