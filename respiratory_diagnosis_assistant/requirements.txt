@@ -3,3 +3,7 @@ tensorflow
 noisereduce
 django==5.0.1
 gunicorn==21.2.0
+django-storages
+djongo
+pytz
+boto3
