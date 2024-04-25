@@ -7,3 +7,4 @@ pandas
 librosa
 numpy
 boto3
+djongo
