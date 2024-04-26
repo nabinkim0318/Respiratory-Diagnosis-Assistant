@@ -48,7 +48,7 @@ def search(request):
                 messages.error(request, 'No audio file provided')
                 return redirect('search')
 
-        elif search_type == 'condition':
+        else:
             condition = request.POST.get('condition')
             matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=condition).select_related('patient')
             for diag in matched_diagnoses:
@@ -86,21 +86,7 @@ def preprocess_audio(audio_file):
     mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)  # Extract 13 MFCCs
     mfccs_processed = np.mean(mfccs.T, axis=0)  # Average over frames
     return mfccs_processed
-    
-    
-def submit_search(request):
-    if request.method == 'POST':
-        search_type = request.POST.get('searchType')
-        if search_type == 'condition':
-            condition = request.POST.get('condition')
-            # Logic to handle search by condition
-            return render(request, 'condition_results.html', {'condition': condition})
-        elif search_type == 'audio':
-            audio_file = request.FILES.get('audioFile')
-            # Logic to handle search by audio file
-            return render(request, 'audio_results.html', {'audio_file': audio_file})
-    else:
-        return redirect('search')
+
 
 def about(request):
     return render(request, 'search/about.html')
