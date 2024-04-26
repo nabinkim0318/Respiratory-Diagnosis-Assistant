@@ -41,11 +41,10 @@
 
     {% for result in results %}
     <div>
-        <h2>Data Information</h2>
+        <h2>{{ result.disease }} case</h2>
         <p>Patient Number: {{ result.patient_number }}</p>
         <p>Age: {{ result.age }}</p>
         <p>Sex: {{ result.sex }}</p>
-        <p>Diagnosis: {{ result.disease }}</p>
         <audio controls>
             <source src="{{ result.audio_file }}" type="audio/mpeg">
             Your browser does not support the audio element.

@@ -50,7 +50,7 @@ def submit(request):
                 with open(audio_file_path, 'wb') as destination:
                     for chunk in audio_file.chunks():
                         destination.write(chunk)
-                        
+                    
                 audio_file_url = audio_file_url = os.path.join(settings.MEDIA_URL, 'audio_files', audio_file.name)
                 print(f"audio_file_url: ", audio_file_url)
                 
@@ -62,7 +62,7 @@ def submit(request):
                 predicted_condition = c_names[predicted_index]
                 print(f"predicted_condition: ", predicted_condition)
                 print("Results:", input)
-                
+            
             
                 input['audio_file_url'] = audio_file_url
                 input['predicted_condition'] = predicted_condition
