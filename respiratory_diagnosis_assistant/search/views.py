@@ -113,6 +113,10 @@ def prepare_metadata_audio(request):
 def prepare_metadata_text(patient, resp, diag, similarity_score=None):
     """ Helper function to prepare metadata dictionary. """
     print(resp)
+
+    cycles = ""
+    for cycle in resp.get('respiratory_cycles'):
+        cycles += str(cycle.get('beginning_resp_cycle')) + "~" + str(cycle.get('end_resp_cycle')) + " | "
     
     return {
         'patient_number': patient.patient_id,
