@@ -75,7 +75,7 @@ def prepare_metadata(patient, resp, diag, similarity_score=None):
         'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.get('sound_file_path')}",
         'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.get('annotation_file')}",
         'recording_index': resp.get('recording_index'),
-        'chest_location': resp.get('recording_index'),
+        'chest_location': resp.get('chest_location'),
         'acquisition_model': resp.get('acquisition_model'),
         'recording_equipment': resp.get('recording_equipment'),
         'respiratory_cycles': resp.get('respiratory_cycles'),
