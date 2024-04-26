@@ -1,63 +1,104 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Audio Results</title>
-    <!-- Load CSS styles -->
-    <link rel="stylesheet" href="{% static 'search/style.css' %}">
-    <style>
-    </style>
-</head>
-<body>
-    <h1>Audio Results</h1>
-
-    <!-- Link to go back to the search page or another section -->
-    <div class="navigation">
-        <a href="{% url 'search' %}">Return to Search</a>
-    </div>
-
-    <!-- CSRF protection -->
-    {% csrf_token %}
-
-    {% if input %}
-        <!-- Loop through results and display audio with metadata -->
-        <div class="audio-result">
-            {% if input.audio_file_url %}
-            <h2>Input Audio File</h2>
-            <audio controls>
-                <source src="{{ input.audio_file_url }}" type="audio/wav">
-                Your browser does not support the audio element.
-            </audio>
-            {% else %}
-            <p>No audio file found.</p>
-            {% endif %}
-            
-            <h2>Input Information</h2>
-            <ul>
-                {% if input.age %}
-                <li>Age: {{ input.age }}</li>
-                {% endif %}
-                {% if input.sex %}
-                <li>Sex: {{ input.sex }}</li>
-                {% endif %}
-                {% if input.bmi %}
-                <li>BMI: {{ input.bmi }}</li>
-                {% endif %}
-                {% if input.child_weight %}
-                <li>Child Weight: {{ input.child_weight }}</li>
-                {% endif %}
-                {% if input.child_height %}
-                <li>Child Height: {{ input.child_height }}</li>
-                {% endif %}
-                {% if input.predicted_condition %}
-                <li><strong>Predicted Condition: {{ input.predicted_condition }}</strong></li>
-                {% endif %}
-                {% if input.predicted_score %}
-                <li><strong>Predicted Score: {{ input.predicted_score }}</strong></li>
-                {% endif %}
-            </ul>
+    <head>
+        <title>Audio Results</title>
+        <!-- Load Wavesurfer.js CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/wavesurfer.js/dist/wavesurfer.min.css">
+        <link rel="stylesheet" href="{% static 'search/style.css' %}">
+        <style>
+            /* Style for the play button */
+            #play-button {
+                display: block;
+                margin-top: 10px;
+                padding: 10px 20px;
+                background-color: #007bff;
+                color: #ffffff;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Audio Results</h1>
+    
+        <!-- Link to go back to the search page or another section -->
+        <div class="navigation">
+            <a href="{% url 'search' %}">Return to Search</a>
         </div>
-    {% else %}
+    
+        <!-- CSRF protection -->
+        {% csrf_token %}
+    
+        {% if input %}
+            <!-- Load jQuery (required for Wavesurfer.js) -->
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+            <!-- Load Wavesurfer.js -->
+            <script src="https://unpkg.com/wavesurfer.js/dist/wavesurfer.min.js"></script>
+    
+            <!-- Script to initialize Wavesurfer and play the audio -->
+            <script>
+                $(document).ready(function() {
+                    // Initialize Wavesurfer
+                    var wavesurfer = WaveSurfer.create({
+                        container: '#waveform',
+                        responsive: true
+                    });
+    
+                    // Load audio file
+                    wavesurfer.load('{{ input.audio_file_url }}');
+    
+                    // Enable interactive playback on click
+                    $('#play-button').on('click', function() {
+                        wavesurfer.playPause();
+                    });
+                });
+            </script>
+            
+            <div class="audio-result">
+                <div>
+                    {% if input.audio_file_url %}
+                    <h2>Input Audio File</h2>
+                    <!-- Container for the waveform -->
+                    <div id="waveform"></div>
+                    <!-- Play button -->
+                    <button id="play-button">Play</button>
+                    {% else %}
+                    <p>No audio file found.</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Input Information -->
+                <div>
+                    <h2>Input Information</h2>
+                    <ul>
+                        {% if input.age %}
+                        <li>Age: {{ input.age }}</li>
+                        {% endif %}
+                        {% if input.sex %}
+                        <li>Sex: {{ input.sex }}</li>
+                        {% endif %}
+                        {% if input.bmi %}
+                        <li>BMI: {{ input.bmi }}</li>
+                        {% endif %}
+                        {% if input.child_weight %}
+                        <li>Child Weight: {{ input.child_weight }}</li>
+                        {% endif %}
+                        {% if input.child_height %}
+                        <li>Child Height: {{ input.child_height }}</li>
+                        {% endif %}
+                        {% if input.predicted_condition %}
+                        <li><strong>Predicted Condition: {{ input.predicted_condition }}</strong></li>
+                        {% endif %}
+                        {% if input.predicted_score %}
+                        <li><strong>Predicted Score: {{ input.predicted_score }}</strong></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            {% else %}
         <!-- Display a message if no results are found -->
         <p>No results to display.</p>
     {% endif %}

@@ -22,7 +22,7 @@ def home(request):
     return render(request, 'search/home.html')
 
 def submit(request):
-    print("Request method:", request.method)
+    print("Request method : ", request.method)
     print("Request POST data:", request.POST)
     print("Request FILES data:", request.FILES)
     search_type = request.POST.get('searchType')
@@ -52,7 +52,7 @@ def submit(request):
                         destination.write(chunk)
                     
                 audio_file_url = audio_file_url = os.path.join(settings.MEDIA_URL, 'audio_files', audio_file.name)
-                print(f"audio_file_url: ", audio_file_url)
+                print(f" audio_file_url: ", audio_file_url)
                 
                 prediction = gru_model.predict(reshaped_features)  # Model expects batch dimension
                 print(f"Prediction: ", prediction)
@@ -60,6 +60,9 @@ def submit(request):
                 predicted_index = np.argmax(predicted_scores)
                 c_names = ['COPD', 'Bronchiolitis', 'Bronchiectasis', 'Pneumonia', 'Healthy', 'URTI']
                 predicted_condition = c_names[predicted_index]
+                predicted_score = predicted_scores[predicted_index]
+                rounded_score = round(predicted_score * 100, 2)
+                formatted_score = f"{rounded_score:.2f}%"
                 print(f"predicted_condition: ", predicted_condition)
                 print(f"predicted_score: {predicted_scores[predicted_index]}")
                 print("Results:  ", input)
@@ -67,7 +70,7 @@ def submit(request):
             
                 input['audio_file_url'] = audio_file_url
                 input['predicted_condition'] = predicted_condition
-                input['predicted_score'] = predicted_scores[predicted_index]
+                input['predicted_score'] = formatted_score
                 print("Results:", input)
                 print("HAPSFPDA")
                 return render(request, 'search/audio_results.html', {'input' : input})
@@ -114,7 +117,7 @@ def prepare_metadata_input(request):
     return results
 
 def prepare_metadata_result(patient, resp, diag):
-    """ Helper function to prepare metadata dictionary. """
+    """ Helper  function  to prepare metadata dictionary. """
     print(resp)
 
     cycles = ""
