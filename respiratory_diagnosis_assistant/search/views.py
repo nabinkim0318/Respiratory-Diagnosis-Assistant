@@ -43,13 +43,14 @@ def submit(request):
                 print(f"reshaped_features: ", reshaped_features)
                 
                 # Save the uploaded audio file to a temporary location
-                audio_file_path = os.path.join(settings.MEDIA_ROOT, audio_file.name)
+                audio_file_path = os.path.join(settings.MEDIA_ROOT,'audio_files', audio_file.name)
                 if not os.path.exists(os.path.dirname(audio_file_path)):
                     os.makedirs(os.path.dirname(audio_file_path))
                     
                 with open(audio_file_path, 'wb') as destination:
                     for chunk in audio_file.chunks():
                         destination.write(chunk)
+                        
                 audio_file_url = audio_file_url = os.path.join(settings.MEDIA_URL, 'audio_files', audio_file.name)
                 print(f"audio_file_url: ", audio_file_url)
                 
@@ -62,6 +63,7 @@ def submit(request):
                 print(f"predicted_condition: ", predicted_condition)
                 print("Results:", result)
                 
+            
                 result['audio_file_url'] = audio_file_url
                 result['predicted_condition'] = predicted_condition
                 print("Results:", result)
