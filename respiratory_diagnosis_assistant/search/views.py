@@ -145,7 +145,6 @@ def preprocess_audio(audio_file):
     mfccs_processed = np.mean(mfccs.T, axis=0)  # Average over frames
     return mfccs_processed
 
-
 def about(request):
     return render(request, 'search/about.html')
 
