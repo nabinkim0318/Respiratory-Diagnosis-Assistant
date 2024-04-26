@@ -63,13 +63,14 @@ def submit(request):
                 # append audio_file_url and classification in the results 
                 result['audio_file_url'] = audio_file_url
                 result['predicted_condition'] = predicted_condition
-                print("Results:", result)
+                results.append(result)
+                print("Results:", results)
                 return render(request, 'search/audio_results.html', {'results': results, 'audio_file_url': audio_file_url})
             except Exception as e:
                 messages.error(request, f"Error processing audio: {str(e)}")
             return render(request, 'search/audio_results.html', {'results': results})
         else:
-            messages.error(request, 'No audio file provided')
+            messages.error(request, 'No aud io file provided')
             return render(request, 'search/audio_results.html', {'results': results})
 
     else:
@@ -113,7 +114,7 @@ def search(request):
 
 def save_user_audio(audio_file):
     # Save the uploaded audio file to a temporary location
-    audio_file_path = os.path.join(settings.MEDIA_ROOT, audio_file.name)
+    audio_file_path = os.path.join(settings.MEDIA_ROOT,'audio_files', audio_file.name)
     if not os.path.exists(os.path.dirname(audio_file_path)):
         os.makedirs(os.path.dirname(audio_file_path))
         
