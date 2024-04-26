@@ -1,33 +1,32 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'search/style.css' %}">
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Patient Audio Results</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Audio Result Page</title>
 </head>
 <body>
-<div class="container mt-5">
-    <h2>Patient Audio Results</h2>
-    <div class="list-group">
-        <a class="list-group-item list-group-item-action"><strong>Patient Number:</strong> {{ patient_number }}</a>
-        <a class="list-group-item list-group-item-action"><strong>Age:</strong> {{ age }}</a>
-        <a class="list-group-item list-group-item-action"><strong>Sex:</strong> {{ sex }}</a>
-        <a class="list-group-item list-group-item-action"><strong>Disease:</strong> {{ disease }}</a>
-        <div class="list-group-item">
-            <strong>Audio File:</strong>
-            <audio controls>
-                <source src="{{ audio_file }}" type="audio/mpeg">
-                Your browser does not support the audio element.
-            </audio>
-        </div>
-        <a class="list-group-item list-group-item-action"><strong>Annotation File:</strong> <a href="{{ annotation_file }}" target="_blank">View</a></a>
-        <a class="list-group-item list-group-item-action"><strong>Recording Index:</strong> {{ recording_index }}</a>
-        <a class="list-group-item list-group-item-action"><strong>Chest Location:</strong> {{ chest_location }}</a>
-        <a class="list-group-item list-group-item-action"><strong>Acquisition Model:</strong> {{ acquisition_model }}</a>
-        <a class="list-group-item list-group-item-action"><strong>Recording Equipment:</strong> {{ recording_equipment }}</a>
-        <a class="list-group-item list-group-item-action"><strong>Respiratory Cycles:</strong> {{ respiratory_cycles }}</a>
-        <a class="list-group-item list-group-item-action"><strong>Similarity Score:</strong> {{ similarity_score }}</a>
+    <h1>Audio Result Page</h1>
+    {% for result in results %}
+    <div>
+        <audio controls>
+            <source src="{{ result.audio_file }}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <h2>Metadata</h2>
+        <p>Patient Number: {{ result.patient_number }}</p>
+        <p>Age: {{ result.age }}</p>
+        <p>Sex: {{ result.sex }}</p>
+        <p>Diagnosis: {{ result.disease }}</p>
+        <p>Annotation File: <a href="{{ result.annotation_file }}">View Annotation</a></p>
+        <p>Recording Index: {{ result.recording_index }}</p>
+        <p>Chest Location: {{ result.chest_location }}</p>
+        <p>Acquisition Model: {{ result.acquisition_model }}</p>
+        <p>Recording Equipment: {{ result.recording_equipment }}</p>
+        <p>Respiratory Cycles: {{ result.respiratory_cycles }}</p>
+        <p>Similarity Score: {{ result.similarity_score }}</p>
     </div>
-</div>
+    {% endfor %}
 </body>
 </html>
