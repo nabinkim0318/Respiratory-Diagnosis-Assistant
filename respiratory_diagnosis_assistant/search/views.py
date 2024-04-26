@@ -58,12 +58,12 @@ def submit(request):
                 print(f"Prediction: ", prediction)
                 predicted_scores = prediction.flatten()
                 predicted_index = np.argmax(predicted_scores)
-                c_names = ['Bronchiectasis', 'Bronchiolitis', 'COPD', 'Healthy', 'Pneumonia', 'URTI']
+                c_names = ['COPD', 'Bronchiolitis', 'Bronchiectasis', 'Pneumonia', 'Healthy', 'URTI']
                 predicted_condition = c_names[predicted_index]
                 print(f"predicted_condition: ", predicted_condition)
                 print("Results:", input)
-            
-            
+        
+                            
                 input['audio_file_url'] = audio_file_url
                 input['predicted_condition'] = predicted_condition
                 print("Results:", input)
