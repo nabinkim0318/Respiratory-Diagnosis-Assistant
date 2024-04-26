@@ -9,3 +9,4 @@ pymongo==3.12.3
 pytz
 boto3
 librosa
+pymongo[srv]
