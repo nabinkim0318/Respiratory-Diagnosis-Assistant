@@ -101,8 +101,7 @@ DATABASES = {
         'NAME': 'respiratory-diagnosis',
         'ENFORCE_SCHEMA': True,
         'CLIENT': {
-            'host': 'mongodb+srv://cs4440_8:cs4440_8@respiratory-diagnosis.hwlbmw8.mongodb.net/?retryWrites=true&w=majority&appName=respiratory-diagnosis',
-            'port': 27017,
+            'host': 'mongodb+srv://cs4440_8:cs4440_8@respiratory-diagnosis.hwlbmw8.mongodb.net/?retryWrites=true&w=majority&appName=respiratory-diagnosis&ssl=true&ssl_cert_reqs=CERT_NONE',
             'username': 'cs4440_8',  
             'password': 'cs4440_8',
         }
