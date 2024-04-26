@@ -74,7 +74,7 @@ def submit(request):
     else:
         print("Not audio condition")
         condition = request.POST.get('condition')
-        matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=condition).select_related('patient_id')
+        matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=condition).select_related('patient_id')[:5]
         print(f"matched_diagnoses: ", matched_diagnoses)
         for diag in matched_diagnoses:
             print(f"diag: ", diag)
