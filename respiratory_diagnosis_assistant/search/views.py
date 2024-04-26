@@ -80,7 +80,7 @@ def submit(request):
     else:
         print("Not audio condition")
         condition = request.POST.get('condition')
-        matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=condition).select_related('patient_id')[:5]
+        matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=condition).select_related('patient_id')
         print(f"matched_diagnoses: ", matched_diagnoses)
         for diag in matched_diagnoses:
             print(f"diag: ", diag)
@@ -97,11 +97,11 @@ def search(request):
 
 def prepare_metadata_audio(request):
     # Get the demographic information from the form
-    age = request.POST.get('age')
-    sex = request.POST.get('sex')
-    bmi = request.POST.get('bmi')
-    child_weight = request.POST.get('childWeight')
-    child_height = request.POST.get('childHeight')
+    age = "Not specified" if request.POST.get('age') == '' else request.POST.get('age')
+    sex = "Not specified" if not request.POST.get('sex') else request.POST.get('sex')
+    bmi = "Not specified" if request.POST.get('bmi') == '' else request.POST.get('bmi')
+    child_weight = "Not specified" if request.POST.get('childWeight') == '' else request.POST.get('childWeight')
+    child_height = "Not specified" if request.POST.get('childHeight') == '' else request.POST.get('childHeight')
     
     results = {
         'age': age,
@@ -132,6 +132,7 @@ def prepare_metadata_text(patient, resp, diag, similarity_score=None):
         'acquisition_model': resp.get('acquisition_model'),
         'recording_equipment': resp.get('recording_equipment'),
         'respiratory_cycles': cycles,
+        'average_cycle': patient.average_cycle_duration,
         'similarity_score': similarity_score if similarity_score is not None else "N/A"  # Display "N/A" if not applicable
     }
 
