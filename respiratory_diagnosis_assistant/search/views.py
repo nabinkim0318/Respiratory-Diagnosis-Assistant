@@ -79,7 +79,7 @@ def submit(request):
             return render(request, 'search/audio_results.html', {'input': input})
 
     else:
-        print("Not audio condition")
+        print("Not audio condition ")
         condition = request.POST.get('condition')
         matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=condition).select_related('patient_id')
         print(f"matched_diagnoses: ", matched_diagnoses)
