@@ -36,7 +36,7 @@ def submit(request):
         audio_file = request.FILES.get('audioFile')
         if audio_file:
             try:       
-                results = prepare_metadata_audio(request)     
+                result = prepare_metadata_audio(request)     
                 features = preprocess_audio(audio_file)
                 print(f"features: ", features)
                 reshaped_features = features.reshape(1, 1, len(features))
@@ -44,6 +44,9 @@ def submit(request):
                 
                 # Save the uploaded audio file to a temporary location
                 audio_file_path = os.path.join(settings.MEDIA_ROOT, audio_file.name)
+                if not os.path.exists(os.path.dirname(audio_file_path)):
+                    os.makedirs(os.path.dirname(audio_file_path))
+                    
                 with open(audio_file_path, 'wb') as destination:
                     for chunk in audio_file.chunks():
                         destination.write(chunk)
@@ -57,12 +60,13 @@ def submit(request):
                 c_names = ['Bronchiectasis', 'Bronchiolitis', 'COPD', 'Healthy', 'Pneumonia', 'URTI']
                 predicted_condition = c_names[predicted_index]
                 print(f"predicted_condition: ", predicted_condition)
-                print("Results:", results)
+                print("Results:", result)
                 
-                results['audio_file_url'] = audio_file_url
-                results['predicted_condition'] = predicted_condition
-                print("Results:", results)
+                result['audio_file_url'] = audio_file_url
+                result['predicted_condition'] = predicted_condition
+                print("Results:", result)
                 print("HAPSFPDA")
+                results.append(result)
                 return render(request, 'search/audio_results.html', {'results': results, 'audio_file_url': audio_file_url})
             except Exception as e:
                 messages.error(request, f"Error processing audio: {str(e)}")
