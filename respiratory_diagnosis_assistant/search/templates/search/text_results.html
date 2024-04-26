@@ -56,6 +56,12 @@
         <p>Patient Number: {{ result.patient_number }}</p>
         <p>Age: {{ result.age }}</p>
         <p>Sex: {{ result.sex }}</p>
+<<<<<<< HEAD
+=======
+        <p>BMI (Adult): {{ result.adult_bmi }}</p>
+        <p>Height (Child): {{ result.child_height }}</p>
+        <p>Weight (Child): {{ result.child_weight }}</p>
+>>>>>>> 5a6b72b2ad4f7eb92c1b94677a62ea3b169ca1df
         <audio controls>
             <source src="{{ result.audio_file }}" type="audio/mpeg">
             Your browser does not support the audio element.
@@ -67,6 +73,10 @@
         <p>Recording Equipment: {{ result.recording_equipment }}</p>
         <p>Respiratory Cycles (in seconds): {{ result.respiratory_cycles }}</p>
         <p>Average Respiratory Cycle (in seconds): {{ result.average_cycle }}</p>
+<<<<<<< HEAD
+=======
+        <p>Metadata Similarity Score: {{ result.metadata_score }}</p>
+>>>>>>> 5a6b72b2ad4f7eb92c1b94677a62ea3b169ca1df
     </div>
     {% endfor %}
 </body>

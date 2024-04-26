@@ -16,6 +16,7 @@ pip install -r requirements.txt
 <!-- pip install djongo -->
 <!-- pip install django-storages -->
 
+Send your email to mkim925@gatech.edu to gain access to MongoDB
 
 ## Open Django Application
 

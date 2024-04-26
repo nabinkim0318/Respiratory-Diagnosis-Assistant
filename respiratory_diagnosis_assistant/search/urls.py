@@ -12,5 +12,3 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('submit/', views.submit, name='submit'),
 ]
-
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
