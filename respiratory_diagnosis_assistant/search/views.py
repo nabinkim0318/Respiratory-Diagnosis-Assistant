@@ -39,45 +39,46 @@ def submit(request):
 
                 patients = Patients.objects.filter(diagnosis=predicted_condition).prefetch_related('respiratory_data')
                 for patient in patients:
-                    for resp in patient.respiratory_data.all():
+                    for resp in patient.respiratory_data:
                         results.append(prepare_metadata(patient, resp, predicted_condition, predicted_scores[predicted_index]))
 
-                return render(request, 'search/audio-results.html', {'results': results})
+                return render(request, 'search/audio_results.html', {'results': results})
             except Exception as e:
                 messages.error(request, f"Error processing audio: {str(e)}")
-            return render(request, 'search/text-results.html', {'results': results})
+            return render(request, 'search/audio_results.html', {'results': results})
         else:
             messages.error(request, 'No audio file provided')
-            return render(request, 'search/text-results.html', {'results': results})
+            return render(request, 'search/audio_results.html', {'results': results})
 
     else:
         condition = request.POST.get('condition')
-        matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=condition).select_related('patient')
+        matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=condition).select_related('patient_id')
         for diag in matched_diagnoses:
-            patient = diag.patient
-            for resp in patient.respiratory_data.all():
+            patient = diag.patient_id
+            for resp in patient.respiratory_data:
                 results.append(prepare_metadata(patient, resp, diag, None))
 
-        return render(request, 'search/text-results.html', {'results': results})
+        return render(request, 'search/text_results.html', {'results': results})
 
 def search(request):
     return render(request, 'search/search.html')
 
 def prepare_metadata(patient, resp, diag, similarity_score=None):
     """ Helper function to prepare metadata dictionary. """
-    print(resp.sound_file_path)
+    print(resp)
+    
     return {
         'patient_number': patient.patient_id,
         'age': patient.age,
         'sex': patient.sex,
         'disease': diag.diagnosis_name,
-        'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.sound_file_path}",
-        'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.annotation_file}",
-        'recording_index': resp.recording_index,
-        'chest_location': resp.chest_location,
-        'acquisition_model': resp.acquisition_model,
-        'recording_equipment': resp.recording_equipment,
-        'respiratory_cycles': resp.respiratory_cycles,
+        'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.get('sound_file_path')}",
+        'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.get('annotation_file')}",
+        'recording_index': resp.get('recording_index'),
+        'chest_location': resp.get('recording_index'),
+        'acquisition_model': resp.get('acquisition_model'),
+        'recording_equipment': resp.get('recording_equipment'),
+        'respiratory_cycles': resp.get('respiratory_cycles'),
         'similarity_score': similarity_score if similarity_score is not None else "N/A"  # Display "N/A" if not applicable
     }
 
