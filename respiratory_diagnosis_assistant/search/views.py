@@ -22,9 +22,9 @@ def home(request):
     return render(request, 'search/home.html')
 
 def submit(request):
-    print("Request method : ", request.method)
-    print("Request POST data:", request.POST)
-    print("Request FILES data:", request.FILES)
+    #print("Request method:", request.method)
+    #print("Request POST data:", request.POST)
+    #print("Request FILES data:", request.FILES)
     search_type = request.POST.get('searchType')
     results = []
     input = prepare_metadata_input(request)     
@@ -38,9 +38,9 @@ def submit(request):
         if audio_file:
             try:       
                 features = preprocess_audio(audio_file)
-                print(f"features: ", features)
+                #print(f"features: ", features)
                 reshaped_features = features.reshape(1, 1, len(features))
-                print(f"reshaped_features: ", reshaped_features)
+                #print(f"reshaped_features: ", reshaped_features)
                 
                 # Save the uploaded audio file to a temporary location
                 audio_file_path = os.path.join(settings.MEDIA_ROOT,'audio_files', audio_file.name)
@@ -52,27 +52,24 @@ def submit(request):
                         destination.write(chunk)
                     
                 audio_file_url = audio_file_url = os.path.join(settings.MEDIA_URL, 'audio_files', audio_file.name)
-                print(f" audio_file_url: ", audio_file_url)
+                #print(f"audio_file_url: ", audio_file_url)
                 
                 prediction = gru_model.predict(reshaped_features)  # Model expects batch dimension
-                print(f"Prediction: ", prediction)
+                #print(f"Prediction: ", prediction)
                 predicted_scores = prediction.flatten()
                 predicted_index = np.argmax(predicted_scores)
                 c_names = ['COPD', 'Bronchiolitis', 'Bronchiectasis', 'Pneumonia', 'Healthy', 'URTI']
                 predicted_condition = c_names[predicted_index]
-                predicted_score = predicted_scores[predicted_index]
-                rounded_score = round(predicted_score * 100, 2)
-                formatted_score = f"{rounded_score:.2f}%"
-                print(f"predicted_condition: ", predicted_condition)
-                print(f"predicted_score: {predicted_scores[predicted_index]}")
-                print("Results:  ", input)
+                #print(f"predicted_condition: ", predicted_condition)
+                #print(f"predicted_score: {predicted_scores[predicted_index]}")
+                #print("Results:", input)
                 
             
                 input['audio_file_url'] = audio_file_url
                 input['predicted_condition'] = predicted_condition
-                input['predicted_score'] = formatted_score
-                print("Results:", input)
-                print("HAPSFPDA")
+                input['predicted_score'] = predicted_scores[predicted_index]
+                #print("Results:", input)
+                #print("HAPSFPDA")
                 return render(request, 'search/audio_results.html', {'input' : input})
             except Exception as e:
                 messages.error(request, f"Error processing audio: {str(e)}")
@@ -82,53 +79,81 @@ def submit(request):
             return render(request, 'search/audio_results.html', {'input': input})
 
     else:
-        print("Not audio condition ")
+        #print("Not audio condition")
         condition = request.POST.get('condition')
         matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=condition).select_related('patient_id')
-        print(f"matched_diagnoses: ", matched_diagnoses)
+        #print(f"matched_diagnoses: ", matched_diagnoses)
         for diag in matched_diagnoses:
-            print(f"diag: ", diag)
+            #print(f"diag: ", diag)
             patient = diag.patient_id
-            print(f"patient: ", patient)
+            #print(f"patient: ", patient)
             for resp in patient.respiratory_data:
-                results.append(prepare_metadata_result(patient, resp, diag))
-                print(f"resp: ", resp)
-        print("Results:", results)
-        return render(request, 'search/text_results.html', {'results': results, 'input':input})
+                result = prepare_metadata_result(patient, resp, diag)
+
+                score = calculate_score(patient, input)
+                result['metadata_score'] = score
+
+                results.append(result)
+                #print(f"resp: ", resp)
+        #print("Results:", results)
+        sorted_results = sorted(results, key=lambda x: x['metadata_score'], reverse=True)
+        return render(request, 'search/text_results.html', {'results': sorted_results, 'input':input})
 
 def search(request):
     return render(request, 'search/search.html')
+
+def calculate_score(patient, metadata_variables):
+    score = 0
+    # Check each metadata variable and increment the score if it matches the condition
+    #print(metadata_variables)
+    for variable, value in metadata_variables.items():
+        if value != 'Not specified':
+            if variable == 'age':
+                age_difference = abs(patient.age - int(value))
+                # Calculate the score based on the inverse of the age difference
+                age_score = max(0, 1 - age_difference / 100)
+                score += age_score
+            elif str(getattr(patient, variable)) == str(value):
+                print(variable, value)
+                score += 1
+
+    #print(f"patient: ", patient)
+    #print(f"score: ", score)
+    return score
 
 def prepare_metadata_input(request):
     # Get the demographic information from the form
     age = "Not specified" if request.POST.get('age') == '' else request.POST.get('age')
     sex = "Not specified" if request.POST.get('sex') == 'null' else request.POST.get('sex')
-    bmi = "Not specified" if request.POST.get('bmi') == '' else request.POST.get('bmi')
+    adult_bmi = "Not specified" if request.POST.get('bmi') == '' else request.POST.get('bmi')
     child_weight = "Not specified" if request.POST.get('childWeight') == '' else request.POST.get('childWeight')
     child_height = "Not specified" if request.POST.get('childHeight') == '' else request.POST.get('childHeight')
     
     results = {
         'age': age,
         'sex': sex,
-        'bmi': bmi,
+        'adult_bmi': adult_bmi,
         'child_weight': child_weight,
         'child_height': child_height
     }
     return results
 
 def prepare_metadata_result(patient, resp, diag):
-    """ Helper  function  to prepare metadata dictionary. """
-    print(resp)
+    """ Helper function to prepare metadata dictionary. """
+    #print(resp)
 
     cycles = ""
     for cycle in resp.get('respiratory_cycles'):
         cycles += str(cycle.get('beginning_resp_cycle')) + "~" + str(cycle.get('end_resp_cycle')) + " | "
-    
+
     return {
         'patient_number': patient.patient_id,
         'age': patient.age,
         'sex': patient.sex,
         'disease': diag.diagnosis_name,
+        'adult_bmi': patient.adult_bmi,
+        'child_height': patient.child_height,
+        'child_weight': patient.child_weight,
         'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.get('sound_file_path')}",
         'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.get('annotation_file')}",
         'recording_index': resp.get('recording_index'),
