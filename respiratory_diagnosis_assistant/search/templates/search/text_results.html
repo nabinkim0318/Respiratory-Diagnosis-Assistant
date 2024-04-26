@@ -9,11 +9,17 @@
 <body>
     <h1>Text Result Page</h1>
     {% for result in results %}
+    <div class="navigation">
+        <a href="{% url 'search' %}">Return to Search</a>
+    </div>
     <div>
-        <h2>Metadata</h2>
+        <h2>Input</h2>
         <p>Patient Number: {{ result.patient_number }}</p>
         <p>Age: {{ result.age }}</p>
         <p>Sex: {{ result.sex }}</p>
+        <p>Adult BMI: {{ result.adult_bmi }}</p>
+        <p>Child Height: {{ result.child_height }}</p>
+        <p>Child Weight: {{ result.child_weight }}</p>
         <p>Diagnosis: {{ result.disease }}</p>
         <audio controls>
             <source src="{{ result.audio_file }}" type="audio/mpeg">
