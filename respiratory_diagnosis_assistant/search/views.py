@@ -61,11 +61,13 @@ def submit(request):
                 c_names = ['COPD', 'Bronchiolitis', 'Bronchiectasis', 'Pneumonia', 'Healthy', 'URTI']
                 predicted_condition = c_names[predicted_index]
                 print(f"predicted_condition: ", predicted_condition)
+                print(f"predicted_score: {predicted_scores[predicted_index]}")
                 print("Results:", input)
-        
-                            
+                
+            
                 input['audio_file_url'] = audio_file_url
                 input['predicted_condition'] = predicted_condition
+                input['predicted_score'] = predicted_scores[predicted_index]
                 print("Results:", input)
                 print("HAPSFPDA")
                 return render(request, 'search/audio_results.html', {'input' : input})
