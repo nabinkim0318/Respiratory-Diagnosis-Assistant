@@ -5,62 +5,64 @@
     <title>Audio Results</title>
     <!-- Load CSS styles -->
     <link rel="stylesheet" href="{% static 'search/style.css' %}">
+    <style>
+    </style>
 </head>
 <body>
     <h1>Audio Results</h1>
 
+    <!-- Link to go back to the search page or another section -->
+    <div class="navigation">
+        <a href="{% url 'search' %}">Return to Search</a>
+    </div>
+
     <!-- CSRF protection -->
     {% csrf_token %}
 
-    {% if results %}
+    {% if input %}
         <!-- Loop through results and display audio with metadata -->
-        {% for result in results %}
         <div class="audio-result">
-            {% if result.audio_file_url %}
-            <h2>Audio File</h2>
+            {% if input.audio_file_url %}
+            <h2>Input Audio File</h2>
             <audio controls>
-                <source src="{{ result.audio_file_url }}" type="audio/wav">
+                <source src="{{ input.audio_file_url }}" type="audio/wav">
                 Your browser does not support the audio element.
             </audio>
             {% else %}
             <p>No audio file found.</p>
             {% endif %}
             
-            <h2>Metadata</h2>
+            <h2>Input Information</h2>
             <ul>
-                {% if result.age %}
-                <li>Age: {{ result.age }}</li>
+                {% if input.age %}
+                <li>Age: {{ input.age }}</li>
                 {% endif %}
-                {% if result.sex %}
-                <li>Sex: {{ result.sex }}</li>
+                {% if input.sex %}
+                <li>Sex: {{ input.sex }}</li>
                 {% endif %}
-                {% if result.bmi %}
-                <li>BMI: {{ result.adult_bmi }}</li>
+                {% if input.bmi %}
+                <li>BMI: {{ input.bmi }}</li>
                 {% endif %}
-                {% if result.child_weight %}
-                <li>Child Weight: {{ result.child_weight }}</li>
+                {% if input.child_weight %}
+                <li>Child Weight: {{ input.child_weight }}</li>
                 {% endif %}
-                {% if result.child_height %}
-                <li>Child Height: {{ result.child_height }}</li>
+                {% if input.child_height %}
+                <li>Child Height: {{ input.child_height }}</li>
                 {% endif %}
-                {% if result.predicted_condition %}
-                <li>Predicted Condition: {{ result.predicted_condition }}</li>
+                {% if input.predicted_condition %}
+                <li><strong>Predicted Condition: {{ input.predicted_condition }}</strong></li>
                 {% endif %}
-                {% if result.predicted_score %}
-                <li>Predicted Score: {{ result.predicted_score }}</li>
+                {% if input.predicted_score %}
+                <li><strong>Predicted Score: {{ input.predicted_score }}</strong></li>
                 {% endif %}
             </ul>
         </div>
-        {% endfor %}
     {% else %}
         <!-- Display a message if no results are found -->
         <p>No results to display.</p>
     {% endif %}
 
-    <!-- Link to go back to the home page or another section -->
-    <div class="navigation">
-        <a href="{% url 'home' %}">Return to Home</a>
-    </div>
+    
 
 </body>
 </html>

@@ -3,24 +3,59 @@
 
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Text Result Page</title>
-</head>
+    <head>
+        <title>Results</title>
+        <!-- Load CSS styles -->
+        <link rel="stylesheet" href="{% static 'search/style.css' %}">
+        <style>
+            /* Add space between loop iterations */
+            .result-container {
+                margin-bottom: 20px; /* Adjust the value as needed */
+            }
+    
+            /* Add vertical line between loop iterations */
+            .result-container:not(:last-child) {
+                border-bottom: 1px solid #ccc; /* Change the color and style as needed */
+                padding-bottom: 20px; /* Add padding below each loop iteration */
+            }
+        </style>
+    </head>
 <body>
+    
     <h1>Text Result Page</h1>
-    {% for result in results %}
+
+    <!-- Link to go back to the home page or another section -->
     <div class="navigation">
         <a href="{% url 'search' %}">Return to Search</a>
     </div>
+
     <div>
-        <h2>Input</h2>
+        <h2>Input Information</h2>
+        <ul>
+            {% if input.age %}
+            <li>Age: {{ input.age }}</li>
+            {% endif %}
+            {% if input.sex %}
+            <li>Sex: {{ input.sex }}</li>
+            {% endif %}
+            {% if input.bmi %}
+            <li>BMI: {{ input.bmi }}</li>
+            {% endif %}
+            {% if input.child_weight %}
+            <li>Child Weight: {{ input.child_weight }}</li>
+            {% endif %}
+            {% if input.child_height %}
+            <li>Child Height: {{ input.child_height }}</li>
+            {% endif %}
+        </ul>
+    </div>
+
+    {% for result in results %}
+    <div>
+        <h2>{{ result.disease }} case</h2>
         <p>Patient Number: {{ result.patient_number }}</p>
         <p>Age: {{ result.age }}</p>
         <p>Sex: {{ result.sex }}</p>
-        <p>Adult BMI: {{ result.adult_bmi }}</p>
-        <p>Child Height: {{ result.child_height }}</p>
-        <p>Child Weight: {{ result.child_weight }}</p>
-        <p>Diagnosis: {{ result.disease }}</p>
         <audio controls>
             <source src="{{ result.audio_file }}" type="audio/mpeg">
             Your browser does not support the audio element.
@@ -31,6 +66,7 @@
         <p>Acquisition Model: {{ result.acquisition_model }}</p>
         <p>Recording Equipment: {{ result.recording_equipment }}</p>
         <p>Respiratory Cycles (in seconds): {{ result.respiratory_cycles }}</p>
+        <p>Average Respiratory Cycle (in seconds): {{ result.average_cycle }}</p>
     </div>
     {% endfor %}
 </body>

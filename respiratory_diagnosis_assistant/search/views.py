@@ -10,11 +10,6 @@ import librosa
 from django.contrib import messages
 from django.http import HttpResponse
 import os
-from pymongo import MongoClient
-
-client = MongoClient('mongodb://localhost:27017/')
-db = client['your_database']
-collection = db['your_collection']
 
 # Load the model on startup
 gru_model = keras.models.load_model('gru_model.keras')
@@ -32,23 +27,33 @@ def submit(request):
     print("Request FILES data:", request.FILES)
     search_type = request.POST.get('searchType')
     results = []
+    input = prepare_metadata_input(request)     
 
     if search_type == 'audio':
-        # TODO: code for getting meta data from the user, if any, append it in the results  
-        # TODO: (testing) handle audio_results.html so that it handles okay when there are no meta data
-        # TODO: mp3 wav check, length check 
-        # TODO: only save the audio file when the accuracy score is greater than 70%
+        # code for getting meta data from the user, if any, append it in the results  
+        # (testing) handle audio_results.html so that it handles okay when there are no meta data
+        # mp3 wav check, length check 
+        # only save the audio file when the accuracy score is greater than 70%
         audio_file = request.FILES.get('audioFile')
         if audio_file:
             try:       
-                # preprocess meta data in the results dictionary 
-                result = prepare_metadata_user_input(request) 
-                
-                # prepare for the input for the pretrained model     
                 features = preprocess_audio(audio_file)
                 print(f"features: ", features)
                 reshaped_features = features.reshape(1, 1, len(features))
                 print(f"reshaped_features: ", reshaped_features)
+                
+                # Save the uploaded audio file to a temporary location
+                audio_file_path = os.path.join(settings.MEDIA_ROOT,'audio_files', audio_file.name)
+                if not os.path.exists(os.path.dirname(audio_file_path)):
+                    os.makedirs(os.path.dirname(audio_file_path))
+                    
+                with open(audio_file_path, 'wb') as destination:
+                    for chunk in audio_file.chunks():
+                        destination.write(chunk)
+                    
+                audio_file_url = audio_file_url = os.path.join(settings.MEDIA_URL, 'audio_files', audio_file.name)
+                print(f"audio_file_url: ", audio_file_url)
+                
                 prediction = gru_model.predict(reshaped_features)  # Model expects batch dimension
                 print(f"Prediction: ", prediction)
                 predicted_scores = prediction.flatten()
@@ -56,109 +61,59 @@ def submit(request):
                 c_names = ['COPD', 'Bronchiolitis', 'Bronchiectasis', 'Pneumonia', 'Healthy', 'URTI']
                 predicted_condition = c_names[predicted_index]
                 print(f"predicted_condition: ", predicted_condition)
+                print(f"predicted_score: {predicted_scores[predicted_index]}")
+                print("Results:  ", input)
                 
-                # save user audio in the media folder 
-                audio_file_url = save_user_audio(audio_file)
-                
-                # append audio_file_url and classification in the results 
-                result['audio_file_url'] = audio_file_url
-                result['predicted_condition'] = predicted_condition
-                results.append(result)
-                print("results:", results)
-                return render(request, 'search/audio_results.html', {'results': results, 'audio_file_url': audio_file_url})
+            
+                input['audio_file_url'] = audio_file_url
+                input['predicted_condition'] = predicted_condition
+                input['predicted_score'] = predicted_scores[predicted_index]
+                print("Results:", input)
+                print("HAPSFPDA")
+                return render(request, 'search/audio_results.html', {'input' : input})
             except Exception as e:
                 messages.error(request, f"Error processing audio: {str(e)}")
-            return render(request, 'search/audio_results.html', {'results': results})
+            return render(request, 'search/audio_results.html', {'input': input})
         else:
             messages.error(request, 'No audio file provided')
-            return render(request, 'search/audio_results.html', {'results': results})
+            return render(request, 'search/audio_results.html', {'input': input})
 
     else:
-        print("Not audio condition")
-        print(request)
+        print("Not audio condition ")
         condition = request.POST.get('condition')
-        metadata_variables = prepare_metadata_user_input(request) 
-        
         matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=condition).select_related('patient_id')
-        patient_ids = [diag.patient_id_id for diag in matched_diagnoses]
-        print(f"patient_ids: ", patient_ids)
-        patients = Patients.objects.filter(patient_id__in=patient_ids)
-        print(f"patients: ", patients)
-        
-        for pat in patients:
-            # Get the patient associated with the diagnosis
-            score = calculate_score(pat, metadata_variables)
-            # Append patient and score to results list
-            results.append({'patient': pat, 'score': score})
-
-        # Sort the results based on the score in descending order
-        sorted_results = sorted(results, key=lambda x: x['score'], reverse=True)
-        print(f"sorted_results: ", sorted_results)
-
-        # Prepare metadata for sorted patients and append to final_results list
-        final_results = []
-
-        for result in sorted_results:
-            patient = result['patient']
+        print(f"matched_diagnoses: ", matched_diagnoses)
+        for diag in matched_diagnoses:
+            print(f"diag: ", diag)
+            patient = diag.patient_id
+            print(f"patient: ", patient)
             for resp in patient.respiratory_data:
-                final_results.append(prepare_metadata_text(patient, resp, condition, None))
-        #print(f"final_results: ", final_results)
-        #print(f"final results len ", len(final_results))
-        return render(request, 'search/text_results.html', {'results': final_results})
-
+                results.append(prepare_metadata_result(patient, resp, diag))
+                print(f"resp: ", resp)
+        print("Results:", results)
+        return render(request, 'search/text_results.html', {'results': results, 'input':input})
 
 def search(request):
     return render(request, 'search/search.html')
 
-def save_user_audio(audio_file):
-    # Save the uploaded audio file to a temporary location
-    audio_file_path = os.path.join(settings.MEDIA_ROOT,'audio_files', audio_file.name)
-    if not os.path.exists(os.path.dirname(audio_file_path)):
-        os.makedirs(os.path.dirname(audio_file_path))
-        
-    with open(audio_file_path, 'wb') as destination:
-        for chunk in audio_file.chunks():
-            destination.write(chunk)
-    audio_file_url = audio_file_url = os.path.join(settings.MEDIA_URL, 'audio_files', audio_file.name)
-    print(f"audio_file_url: ", audio_file_url)
-    return audio_file_url
-    
-def prepare_metadata_user_input(request):
+def prepare_metadata_input(request):
     # Get the demographic information from the form
-    age = request.POST.get('age')
-    sex = request.POST.get('sex')
-    adult_bmi = request.POST.get('bmi')
-    child_weight = request.POST.get('childWeight')
-    child_height = request.POST.get('childHeight')
+    age = "Not specified" if request.POST.get('age') == '' else request.POST.get('age')
+    sex = "Not specified" if request.POST.get('sex') == 'null' else request.POST.get('sex')
+    bmi = "Not specified" if request.POST.get('bmi') == '' else request.POST.get('bmi')
+    child_weight = "Not specified" if request.POST.get('childWeight') == '' else request.POST.get('childWeight')
+    child_height = "Not specified" if request.POST.get('childHeight') == '' else request.POST.get('childHeight')
     
     results = {
         'age': age,
         'sex': sex,
-        'adult_bmi': adult_bmi,
+        'bmi': bmi,
         'child_weight': child_weight,
         'child_height': child_height
     }
     return results
 
-def calculate_score(patient, metadata_variables):
-    score = 0
-    # Check each metadata variable and increment the score if it matches the condition
-    for variable, value in metadata_variables.items():
-        if value:
-            if variable == 'age':
-                age_difference = abs(patient.age - int(value))
-                # Calculate the score based on the inverse of the age difference
-                age_score = max(0, 1 - age_difference / 100)
-                score += age_score
-        elif str(getattr(patient, variable)) == str(value):
-            print(variable, value)
-            score += 1
-
-    print(f"patien t: ", patient)
-    print(f"score: ", score)
-    return score
- 
-def prepare_metadata_text(patient, resp, condition, similarity_score=None):
+def prepare_metadata_result(patient, resp, diag):
     """ Helper function to prepare metadata dictionary. """
     print(resp)
 
@@ -170,10 +125,7 @@ def prepare_metadata_text(patient, resp, condition, similarity_score=None):
         'patient_number': patient.patient_id,
         'age': patient.age,
         'sex': patient.sex,
-        'disease': condition,
-        'adult_bmi': patient.adult_bmi,
-        'child_height': patient.child_height,
-        'child_weight': patient.child_weight,
+        'disease': diag.diagnosis_name,
         'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.get('sound_file_path')}",
         'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{resp.get('annotation_file')}",
         'recording_index': resp.get('recording_index'),
@@ -181,7 +133,7 @@ def prepare_metadata_text(patient, resp, condition, similarity_score=None):
         'acquisition_model': resp.get('acquisition_model'),
         'recording_equipment': resp.get('recording_equipment'),
         'respiratory_cycles': cycles,
-        'similarity_score': similarity_score if similarity_score is not None else "N/A"  # Display "N/A" if not applicable
+        'average_cycle': patient.average_cycle_duration,
     }
 
 def preprocess_audio(audio_file):
@@ -192,7 +144,6 @@ def preprocess_audio(audio_file):
     mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=52)  # Extract 13 MFCCs
     mfccs_processed = np.mean(mfccs.T, axis=0)  # Average over frames
     return mfccs_processed
-
 
 def about(request):
     return render(request, 'search/about.html')
