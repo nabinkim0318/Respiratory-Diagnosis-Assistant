@@ -64,17 +64,18 @@ def submit(request):
                 result['audio_file_url'] = audio_file_url
                 result['predicted_condition'] = predicted_condition
                 results.append(result)
-                print("Results:", results)
+                print("results:", results)
                 return render(request, 'search/audio_results.html', {'results': results, 'audio_file_url': audio_file_url})
             except Exception as e:
                 messages.error(request, f"Error processing audio: {str(e)}")
             return render(request, 'search/audio_results.html', {'results': results})
         else:
-            messages.error(request, 'No aud io file provided')
+            messages.error(request, 'No audio file provided')
             return render(request, 'search/audio_results.html', {'results': results})
 
     else:
         print("Not audio condition")
+        print(request)
         condition = request.POST.get('condition')
         metadata_variables = prepare_metadata_user_input(request) 
         
@@ -99,15 +100,12 @@ def submit(request):
 
         for result in sorted_results:
             patient = result['patient']
-            print(patient.age)
-            print(patient.sex)
-            print(patient.adult_bmi)
-            print(patient.respiratory_data)
             for resp in patient.respiratory_data:
                 final_results.append(prepare_metadata_text(patient, resp, condition, None))
         #print(f"final_results: ", final_results)
         #print(f"final results len ", len(final_results))
         return render(request, 'search/text_results.html', {'results': final_results})
+
 
 def search(request):
     return render(request, 'search/search.html')
@@ -129,9 +127,9 @@ def prepare_metadata_user_input(request):
     # Get the demographic information from the form
     age = request.POST.get('age')
     sex = request.POST.get('sex')
-    adult_bmi = request.POST.get('adult_bmi')
-    child_weight = request.POST.get('child_weight')
-    child_height = request.POST.get('child_height')
+    adult_bmi = request.POST.get('bmi')
+    child_weight = request.POST.get('childWeight')
+    child_height = request.POST.get('childHeight')
     
     results = {
         'age': age,
