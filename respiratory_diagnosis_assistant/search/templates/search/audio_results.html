@@ -10,22 +10,34 @@
     <h1>Audio Result Page</h1>
     {% for result in results %}
     <div>
+        {% if result.audio_file_url %}
         <audio controls>
-            <source src="{{ result.audio_file }}" type="audio/mpeg">
+            <source src="{{ result.audio_file_url }}" type="audio/wav">
             Your browser does not support the audio element.
         </audio>
+        {% endif %}
+        
         <h2>Metadata</h2>
-        <p>Patient Number: {{ result.patient_number }}</p>
-        <p>Age: {{ result.age }}</p>
-        <p>Sex: {{ result.sex }}</p>
-        <p>Diagnosis: {{ result.disease }}</p>
-        <p>Annotation File: <a href="{{ result.annotation_file }}">View Annotation</a></p>
-        <p>Recording Index: {{ result.recording_index }}</p>
-        <p>Chest Location: {{ result.chest_location }}</p>
-        <p>Acquisition Model: {{ result.acquisition_model }}</p>
-        <p>Recording Equipment: {{ result.recording_equipment }}</p>
-        <p>Respiratory Cycles: {{ result.respiratory_cycles }}</p>
-        <p>Similarity Score: {{ result.similarity_score }}</p>
+        <ul>
+            {% if result.age %}
+            <li>Age: {{ result.age }}</li>
+            {% endif %}
+            {% if result.sex %}
+            <li>Sex: {{ result.sex }}</li>
+            {% endif %}
+            {% if result.bmi %}
+            <li>BMI: {{ result.bmi }}</li>
+            {% endif %}
+            {% if result.child_weight %}
+            <li>Child Weight: {{ result.child_weight }}</li>
+            {% endif %}
+            {% if result.child_height %}
+            <li>Child Height: {{ result.child_height }}</li>
+            {% endif %}
+            {% if result.predicted_condition %}
+            <li>Predicted Condition: {{ result.predicted_condition }}</li>
+            {% endif %}
+        </ul>
     </div>
     {% endfor %}
 </body>

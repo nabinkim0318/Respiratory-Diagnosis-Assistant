@@ -60,6 +60,8 @@ class Patients(models.Model):
 class Diagnosis(models.Model):
     patient_id = models.ForeignKey(Patients, related_name='diagnoses', on_delete=models.CASCADE)
     diagnosis_name = models.CharField(max_length=100)
+    print(f"patient_id: ", patient_id)
+    print(f"diagnosis_name: ", diagnosis_name)
     
     class Meta:
         db_table = 'search_diagnosis'
