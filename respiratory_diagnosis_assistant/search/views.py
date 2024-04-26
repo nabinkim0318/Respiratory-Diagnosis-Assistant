@@ -107,7 +107,7 @@ def calculate_score(patient, metadata_variables):
     # Check each metadata variable and increment the score if it matches the condition
     for variable, value in metadata_variables.items():
         if value:
-            if variable == 'age':
+            if variable == 'age' and value != 'Not specified':
                 age_difference = abs(patient.age - int(value))
                 # Calculate the score based on the inverse of the age difference
                 age_score = max(0, 1 - age_difference / 100)
