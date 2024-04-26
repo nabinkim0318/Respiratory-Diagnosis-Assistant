@@ -64,7 +64,6 @@ def submit(request):
                 #print(f"predicted_score: {predicted_scores[predicted_index]}")
                 #print("Results:", input)
                 
-            
                 input['audio_file_url'] = audio_file_url
                 input['predicted_condition'] = predicted_condition
                 input['predicted_score'] = predicted_scores[predicted_index]
@@ -110,12 +109,23 @@ def calculate_score(patient, metadata_variables):
         if value != 'Not specified':
             if variable == 'age':
                 age_difference = abs(patient.age - int(value))
-                # Calculate the score based on the inverse of the age difference
                 age_score = max(0, 1 - age_difference / 100)
                 score += age_score
-            elif str(getattr(patient, variable)) == str(value):
+            elif variable == 'sex' and str(getattr(patient, variable)) == str(value):
                 print(variable, value)
                 score += 1
+            elif variable == 'adult_bmi':
+                bmi_difference = abs(patient.adult_bmi - float(value))
+                bmi_score = max(0, 1 - bmi_difference / 100)
+                score += bmi_score
+            elif variable == 'child_weight':
+                weight_difference = abs(patient.child_weight - float(value))
+                weight_score = max(0, 1 - weight_difference / 100)
+                score += weight_score
+            elif variable == 'child_height':
+                height_difference = abs(patient.child_height - float(value))
+                height_score = max(0, 1 - height_difference / 100)
+                score += height_score
 
     #print(f"patient: ", patient)
     #print(f"score: ", score)
