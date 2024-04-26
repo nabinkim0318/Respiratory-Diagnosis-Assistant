@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from datetime import datetime
 from .forms import SearchForm
 from .models import Patients, RespiratoryData, Diagnosis
@@ -9,20 +9,17 @@ from difflib import get_close_matches
 import numpy as np
 import boto3
 from django.conf import settings
+import keras
 
 # Load the model on startup
-model = tf.keras.models.load_model('gru_model.tf')
+gru_model = keras.models.load_model('gru_model.keras')
+
+# S3 Bucket configuration
+s3_client = boto3.client('s3')
+bucket_name = 'respiratory-diagnosis'
 
 def home(request):
     return render(request, 'search/home.html')
-
-def generate_presigned_url(object_name):
-    s3_client = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
-    presigned_url = s3_client.generate_presigned_url('get_object',
-                                                     Params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
-                                                             'Key': object_name},
-                                                     ExpiresIn=3600)
-    return presigned_url
 
 def search(request):
     if request.method == 'POST':
@@ -108,6 +105,74 @@ def search(request):
         form = SearchForm()
         return render(request, 'search/search.html', {'form': form})
     
+def text_results(request):
+    if request.method == 'POST':
+        patient_id = request.POST.get('patient')
+        patient = Patients.objects.get(patient_id=patient_id)
+        diag = Diagnosis.objects.get(patient=patient)
+
+        context = {
+            'patient_number': patient.patient_id,
+            'age': patient.age,
+            'sex': patient.sex,
+            'disease': diag.diagnosis_name,
+            'audio_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{diag.sound_file_path}",
+            'annotation_file': f"https://respiratory-diagnosis.s3.us-east-2.amazonaws.com/{diag.annotation_file}",
+            'recording_index': diag.recording_index,
+            'chest_location': diag.chest_location,
+            'acquisition_model': diag.acquisition_model,
+            'recording_equipment': diag.recording_equipment,
+            'respiratory_cycles': diag.respiratory_cycles,
+        }
+        return render(request, 'search/text-results.html', context)
+    else:
+        return render(request, 'search.html')
+     
+def audio_results(request):
+    if request.method == 'POST':
+        patient_id = request.POST.get('patient')
+        audio_file_path = request.POST.get('audio_file_path')
+        patient = Patients.objects.get(patient_id=patient_id)
+        diag = Diagnosis.objects.get(patient=patient)
+
+        # Assume audio file is directly usable by the model
+        audio_path = f"https://{bucket_name}.s3.us-east-2.amazonaws.com/{audio_file_path}"
+        audio_data = s3_client.get_object(Bucket=bucket_name, Key=audio_file_path)['Body'].read()
+        audio_np = np.frombuffer(audio_data, dtype=np.float32)
+        predicted_scores = gru_model.predict(np.array([audio_np]))[0]
+
+        context = {
+            'patient_number': patient.patient_id,
+            'age': patient.age,
+            'sex': patient.sex,
+            'disease': diag.diagnosis_name,
+            'audio_file': f"https://{bucket_name}.s3.us-east-2.amazonaws.com/{diag.sound_file_path}",
+            'annotation_file': f"https://{bucket_name}.s3.us-east-2.amazonaws.com/{diag.annotation_file}",
+            'recording_index': diag.recording_index,
+            'chest_location': diag.chest_location,
+            'acquisition_model': diag.acquisition_model,
+            'recording_equipment': diag.recording_equipment,
+            'respiratory_cycles': diag.respiratory_cycles,
+            'similarity_score': float(predicted_scores[diag.id])  # Adjust as needed based on how diag relates to model output
+        }
+        return render(request, 'search/audio-results.html', context)
+    else:
+        return render(request, 'search.html')
+    
+def submit_search(request):
+    if request.method == 'POST':
+        search_type = request.POST.get('searchType')
+        if search_type == 'condition':
+            condition = request.POST.get('condition')
+            # Logic to handle search by condition
+            return render(request, 'condition_results.html', {'condition': condition})
+        elif search_type == 'audio':
+            audio_file = request.FILES.get('audioFile')
+            # Logic to handle search by audio file
+            return render(request, 'audio_results.html', {'audio_file': audio_file})
+    else:
+        return redirect('search')
+
 def about(request):
     return render(request, 'search/about.html')
 
