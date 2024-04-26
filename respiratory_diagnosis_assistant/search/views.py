@@ -27,6 +27,7 @@ def submit(request):
     print("Request FILES data:", request.FILES)
     search_type = request.POST.get('searchType')
     results = []
+    input = prepare_metadata_input(request)     
 
     if search_type == 'audio':
         # code for getting meta data from the user, if any, append it in the results  
@@ -36,7 +37,6 @@ def submit(request):
         audio_file = request.FILES.get('audioFile')
         if audio_file:
             try:       
-                result = prepare_metadata_audio(request)     
                 features = preprocess_audio(audio_file)
                 print(f"features: ", features)
                 reshaped_features = features.reshape(1, 1, len(features))
@@ -61,21 +61,20 @@ def submit(request):
                 c_names = ['Bronchiectasis', 'Bronchiolitis', 'COPD', 'Healthy', 'Pneumonia', 'URTI']
                 predicted_condition = c_names[predicted_index]
                 print(f"predicted_condition: ", predicted_condition)
-                print("Results:", result)
+                print("Results:", input)
                 
             
-                result['audio_file_url'] = audio_file_url
-                result['predicted_condition'] = predicted_condition
-                print("Results:", result)
+                input['audio_file_url'] = audio_file_url
+                input['predicted_condition'] = predicted_condition
+                print("Results:", input)
                 print("HAPSFPDA")
-                results.append(result)
-                return render(request, 'search/audio_results.html', {'results': results, 'audio_file_url': audio_file_url})
+                return render(request, 'search/audio_results.html', {'input' : input})
             except Exception as e:
                 messages.error(request, f"Error processing audio: {str(e)}")
-            return render(request, 'search/audio_results.html', {'results': results})
+            return render(request, 'search/audio_results.html', {'input': input})
         else:
             messages.error(request, 'No audio file provided')
-            return render(request, 'search/audio_results.html', {'results': results})
+            return render(request, 'search/audio_results.html', {'input': input})
 
     else:
         print("Not audio condition")
@@ -87,18 +86,18 @@ def submit(request):
             patient = diag.patient_id
             print(f"patient: ", patient)
             for resp in patient.respiratory_data:
-                results.append(prepare_metadata_text(patient, resp, diag, None))
+                results.append(prepare_metadata_result(patient, resp, diag))
                 print(f"resp: ", resp)
         print("Results:", results)
-        return render(request, 'search/text_results.html', {'results': results})
+        return render(request, 'search/text_results.html', {'results': results, 'input':input})
 
 def search(request):
     return render(request, 'search/search.html')
 
-def prepare_metadata_audio(request):
+def prepare_metadata_input(request):
     # Get the demographic information from the form
     age = "Not specified" if request.POST.get('age') == '' else request.POST.get('age')
-    sex = "Not specified" if not request.POST.get('sex') else request.POST.get('sex')
+    sex = "Not specified" if request.POST.get('sex') == 'null' else request.POST.get('sex')
     bmi = "Not specified" if request.POST.get('bmi') == '' else request.POST.get('bmi')
     child_weight = "Not specified" if request.POST.get('childWeight') == '' else request.POST.get('childWeight')
     child_height = "Not specified" if request.POST.get('childHeight') == '' else request.POST.get('childHeight')
@@ -112,7 +111,7 @@ def prepare_metadata_audio(request):
     }
     return results
 
-def prepare_metadata_text(patient, resp, diag, similarity_score=None):
+def prepare_metadata_result(patient, resp, diag):
     """ Helper function to prepare metadata dictionary. """
     print(resp)
 
@@ -133,7 +132,6 @@ def prepare_metadata_text(patient, resp, diag, similarity_score=None):
         'recording_equipment': resp.get('recording_equipment'),
         'respiratory_cycles': cycles,
         'average_cycle': patient.average_cycle_duration,
-        'similarity_score': similarity_score if similarity_score is not None else "N/A"  # Display "N/A" if not applicable
     }
 
 def preprocess_audio(audio_file):
