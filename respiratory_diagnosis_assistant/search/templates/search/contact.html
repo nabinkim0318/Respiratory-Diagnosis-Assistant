@@ -1,57 +1,54 @@
-{% comment %} <!DOCTYPE html>
-<html>
-<head>
-    <title>Contact</title>
-</head>
-<body>
-    <h1>Contact Us</h1>
-    <h2>Contact Information</h2>
-    <p>If you have any questions, feedback, or inquiries, feel free to reach out to us:</p>
-    <ul>
-        <li>Email: info@respiratorysearch.com</li>
-        <li>Phone: 123-456-7890</li>
-    </ul>
-    <h2>Feedback Form</h2>
-    <form method="post">
-        {% csrf_token %}
-        <label for="feedback">Your Feedback:</label><br>
-        <textarea id="feedback" name="feedback" rows="4" cols="50"></textarea><br><br>
-        <button type="submit">Submit</button>
-    </form>
-    {% comment %} <h2>Social Media</h2>
-    <p>Connect with us on social media:</p>
-    <ul>
-        <li><a href="#">Facebook</a></li>
-        <li><a href="#">Twitter</a></li>
-        <li><a href="#">LinkedIn</a></li>
-        <!-- Add more social media links as needed -->
-    </ul> 
-</body>
-</html> {% endcomment %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'search/style.css' %}">
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Page</title>
+</head>
+<body>
+
+    <!-- Top Banner -->
+    <header>
+        <!-- Page name on the left -->
+        <h1>Contact</h1>
+        <!-- Links to other pages on the right -->
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'search' %}">Search</a></li>
+                <li><a href="{% url 'help' %}">Help/FAQ</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+<!DOCTYPE html>
+<html>
+<head>
     <title>Contact Us</title>
 </head>
 <body>
-    <h1>Contact Us</h1>
 
     <!-- Contact Information Section -->
     <section>
-        <h2>Contact Information</h2>
+        {% comment %} <h2>Contact Information</h2> {% endcomment %}
         <p>If you have any questions, feedback, or inquiries, feel free to reach out to us:</p>
         <ul>
-            <li>Email: info@respiratorysearch.com</li>
-            <li>Phone: 123-456-7890</li>
+            <li>Minjun Kim (mkim925@gatech.edu) </li>
+            <li>Nabin Kim (nabin@gatech.edu) </li>
+            <li>Sandra Kurian (skurian32@gatech.edu) </li>
+            <li>Seohee Yoon (syoon333@gatech.edu) </li>
+            
         </ul>
     </section>
 
     <!-- Feedback Form Section -->
     <section>
-        <h2>Feedback Form</h2>
+        {% comment %} <h2>Feedback Form</h2> {% endcomment %}
         <form method="post">
             {% csrf_token %}
             <label for="feedback">Your Feedback:</label><br>
