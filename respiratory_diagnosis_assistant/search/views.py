@@ -115,6 +115,10 @@ def prepare_metadata_audio(request):
 def prepare_metadata_text(patient, resp, diag, similarity_score=None):
     """ Helper function to prepare metadata dictionary. """
     print(resp)
+
+    cycles = ""
+    for cycle in resp.get('respiratory_cycles'):
+        cycles += str(cycle.get('beginning_resp_cycle')) + "~" + str(cycle.get('end_resp_cycle')) + " | "
     
     return {
         'patient_number': patient.patient_id,
@@ -127,7 +131,7 @@ def prepare_metadata_text(patient, resp, diag, similarity_score=None):
         'chest_location': resp.get('chest_location'),
         'acquisition_model': resp.get('acquisition_model'),
         'recording_equipment': resp.get('recording_equipment'),
-        'respiratory_cycles': resp.get('respiratory_cycles'),
+        'respiratory_cycles': cycles,
         'similarity_score': similarity_score if similarity_score is not None else "N/A"  # Display "N/A" if not applicable
     }
 
