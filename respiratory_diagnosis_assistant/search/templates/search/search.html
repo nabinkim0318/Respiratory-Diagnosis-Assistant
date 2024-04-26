@@ -25,7 +25,7 @@
         </nav>
     </header>
 <!-- Search Form -->
-<form action="{% url 'search' %}" method="post" enctype="multipart/form-data">
+<form action="{% url 'submit' %}" method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <h2>Search Type:</h2>
   <input type="radio" id="condition" name="searchType" value="condition" checked>

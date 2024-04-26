@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from datetime import datetime
 from .models import Patients, RespiratoryData, Diagnosis
 from .audio_utils import preprocess_audio
@@ -20,45 +20,48 @@ bucket_name = 'respiratory-diagnosis'
 def home(request):
     return render(request, 'search/home.html')
 
-def search(request):
-    if request.method == 'POST':
-        search_type = request.POST.get('searchType')
-        results = []
+def submit(request):
+    print("Request method:", request.method)
+    print("Request POST data:", request.POST)
+    print("Request FILES data:", request.FILES)
+    search_type = request.POST.get('searchType')
+    results = []
 
-        if search_type == 'audio':
-            audio_file = request.FILES.get('audioFile')
-            if audio_file:
-                try:
-                    features = preprocess_audio(audio_file)
-                    prediction = gru_model.predict(np.array([features]))  # Model expects batch dimension
-                    predicted_scores = prediction.flatten()
-                    predicted_index = np.argmax(predicted_scores)
-                    predicted_condition = Diagnosis.objects.get(id=predicted_index)
+    if search_type == 'audio':
+        audio_file = request.FILES.get('audioFile')
+        if audio_file:
+            try:
+                features = preprocess_audio(audio_file)
+                prediction = gru_model.predict(np.array([features]))  # Model expects batch dimension
+                predicted_scores = prediction.flatten()
+                predicted_index = np.argmax(predicted_scores)
+                predicted_condition = Diagnosis.objects.get(id=predicted_index)
 
-                    patients = Patients.objects.filter(diagnosis=predicted_condition).prefetch_related('respiratory_data')
-                    for patient in patients:
-                        for resp in patient.respiratory_data.all():
-                            results.append(prepare_metadata(patient, resp, predicted_condition, predicted_scores[predicted_index]))
+                patients = Patients.objects.filter(diagnosis=predicted_condition).prefetch_related('respiratory_data')
+                for patient in patients:
+                    for resp in patient.respiratory_data.all():
+                        results.append(prepare_metadata(patient, resp, predicted_condition, predicted_scores[predicted_index]))
 
-                    return render(request, 'search/audio-results.html', {'results': results})
-                except Exception as e:
-                    messages.error(request, f"Error processing audio: {str(e)}")
-                    return redirect('search')
-            else:
-                messages.error(request, 'No audio file provided')
-                return redirect('search')
-
-        else:
-            condition = request.POST.get('condition')
-            matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=condition).select_related('patient')
-            for diag in matched_diagnoses:
-                patient = diag.patient
-                for resp in patient.respiratory_data.all():
-                    results.append(prepare_metadata(patient, resp, diag, None))
-
+                return render(request, 'search/audio-results.html', {'results': results})
+            except Exception as e:
+                messages.error(request, f"Error processing audio: {str(e)}")
             return render(request, 'search/text-results.html', {'results': results})
+        else:
+            messages.error(request, 'No audio file provided')
+            return render(request, 'search/text-results.html', {'results': results})
+
     else:
-        return render(request, 'search/search.html')
+        condition = request.POST.get('condition')
+        matched_diagnoses = Diagnosis.objects.filter(diagnosis_name__icontains=condition).select_related('patient')
+        for diag in matched_diagnoses:
+            patient = diag.patient
+            for resp in patient.respiratory_data.all():
+                results.append(prepare_metadata(patient, resp, diag, None))
+
+        return render(request, 'search/text-results.html', {'results': results})
+
+def search(request):
+    return render(request, 'search/search.html')
 
 def prepare_metadata(patient, resp, diag, similarity_score=None):
     """ Helper function to prepare metadata dictionary. """
