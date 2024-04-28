@@ -52,7 +52,6 @@ def submit(request):
                         destination.write(chunk)
                     
                 audio_file_url = audio_file_url = os.path.join(settings.MEDIA_URL, 'audio_files', audio_file.name)
-                #print(f"audio_file_url: ", audio_file_url)
                 
                 prediction = gru_model.predict(reshaped_features)  # Model expects batch dimension
                 #print(f"Prediction: ", prediction)
@@ -60,13 +59,12 @@ def submit(request):
                 predicted_index = np.argmax(predicted_scores)
                 c_names = ['COPD', 'Bronchiolitis', 'Bronchiectasis', 'Pneumonia', 'Healthy', 'URTI']
                 predicted_condition = c_names[predicted_index]
-                #print(f"predicted_condition: ", predicted_condition)
-                #print(f"predicted_score: {predicted_scores[predicted_index]}")
-                #print("Results:", input)
+                predicted_score = round(predicted_scores[predicted_index]* 100, 2)
+                predicted_percentage_string = f"{predicted_score}%"
                 
                 input['audio_file_url'] = audio_file_url
                 input['predicted_condition'] = predicted_condition
-                input['predicted_score'] = predicted_scores[predicted_index]
+                input['predicted_score'] = predicted_percentage_string
                 #print("Results:", input)
                 #print("HAPSFPDA")
                 return render(request, 'search/audio_results.html', {'input' : input})
@@ -74,7 +72,7 @@ def submit(request):
                 messages.error(request, f"Error processing audio: {str(e)}")
             return render(request, 'search/audio_results.html', {'input': input})
         else:
-            messages.error(request, 'No audio file provided')
+            messages.error(request, 'No audio  file provided')
             return render(request, 'search/audio_results.html', {'input': input})
 
     else:

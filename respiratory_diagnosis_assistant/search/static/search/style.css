@@ -41,12 +41,25 @@ header nav ul li a:hover {
 
 body {
     background-color: #eef4ed;
-    margin-left: 30px; /* Adjust the value as needed */
-    margin-right: 30px; /* Adjust the value as needed */
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 800px;
+    padding: 20px;
 }
 
-body h2{
-    color: 0B2545
+h1 {
+    margin: 0; /* Reset margin for h1 */
+    font-size: 30px;
+    color: #0B2545; /* Adjust color if needed */
+}
+
+h2 {
+    margin-top: 20px; /* Add more margin to the top of h2 */
+    margin-bottom: 10px; /* Add margin to the bottom of h2 */
+    margin-left: 50px;
+    margin-right: 50px;
+    font-size: 24px; /* Adjust font size if needed */
+    color: #0B2545; /* Adjust color if needed */
 }
   
 .btn {
