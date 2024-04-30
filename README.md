@@ -1,49 +1,73 @@
-# Respiratory-Diagnosis-Assistant
+# Respiratory Diagnosis Assistant
 
 ## About the Application
 
-Specify the database system(s) and version(s)
+The Respiratory Diagnosis Assistant is a tool designed to assist in diagnosing respiratory conditions based on audio recordings. It utilizes Amazon S3 for storing audio files and MongoDB for managing data.
 
 ## Installation Process
 
-download the code
+### Prerequisites
+- Python version 3.11 or higher
+- Access to MongoDB (Contact mkim925@gatech.edu for access)
 
-```
-git clone https://github.com/nabinkim0318/Respiratory-Diagnosis-Assistant.git
-```
+### Installation Steps
 
-pip install -r requirements.txt
-<!-- pip install djongo -->
-<!-- pip install django-storages -->
+1. Clone the repository:
 
-Send your email to mkim925@gatech.edu to gain access to MongoDB
+    ```bash
+    git clone https://github.com/nabinkim0318/Respiratory-Diagnosis-Assistant.git
+    ```
 
-## Open Django Application
+2. Navigate to the project directory and create a virtual environment:
 
-```
-cd respiratory_diagnosis_assistant
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver
-```
+    ```bash
+    cd Respiratory-Diagnosis-Assistant
+    python -m venv venv
+    ```
 
-open a search engine and go to [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+3. Activate the virtual environment:
+   
+   - macOS:
+     ```bash
+     source venv/bin/activate
+     ```
+   - Windows:
+     ```bash
+     venv\Scripts\activate
+     ```
+
+4. Install required libraries:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+5. Run the Django application:
+
+    ```bash
+    python manage.py runserver
+    ```
+
+6. Open a web browser and go to [http://127.0.0.1:8000/](http://127.0.0.1:8000/) to access the application.
 
 ## How to Search
 
-**Search by Condition:** output the top 5 audio files which best match the condition and additional demographic information
+### Search by Condition
 
-**Search by Audio File:** output the condition and confidence score based on the audio file and additional demographic information
+This option outputs the top 5 audio files that best match the provided condition, along with additional demographic information.
 
-## Additional info needed to add to this documantation
-Describe how to acquire project data. Include a small dataset sample (< 5 MB) or provide scripts to download/scrape/process the data.
-How do we load this data into the database system?
-Do you have some scripts to do that? If so, how do we execute them?
-Did you use some tools for loading? If so, provide appropriate details and links.
-If you are benchmarking different database systems, detail any configuration modifications made.
-If generating your own data, include a sample of the synthetic dataset/database.
+### Search by Audio File
 
+This option outputs the condition and confidence score based on the provided audio file, along with additional demographic information.
 
-List third-party libraries required for code execution and provide installation instructions (e.g., through a requirements.txt file).
-If applicable, explain how to run the GUI.
-Include any other relevant information about running your application.
+## Additional Information
+
+- **Sample Dataset**: A small dataset sample is located in the directory `Respiratory-Diagnosis-Assistant/respiratory_diagnosis_assistant/media/audio_files`.
+- **Data Loading Scripts**: Scripts to load data into the MongoDB database are available:
+
+    ```bash
+    python manage.py import_script  # load dataset into MongoDB
+    python manage.py average_calc   # calculate average cycle duration
+    ```
+
+Please note that you do not need to run these scripts as the data are already loaded into the system.
