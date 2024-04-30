@@ -4,6 +4,11 @@
 
 The Respiratory Diagnosis Assistant is a tool designed to assist in diagnosing respiratory conditions based on audio recordings. It utilizes Amazon S3 for storing audio files and MongoDB for managing data.
 
+## Database Systems and Versions
+
+- **Amazon S3**: Used for storing audio files. For information on how to set up and use Amazon S3, please refer to the [official documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html).
+- **MongoDB Atlas**: Used for managing data. The application is configured to connect to a MongoDB Atlas cluster running version 7.0.8. For more information on MongoDB Atlas and how to set it up, please refer to the [official documentation](https://docs.atlas.mongodb.com/).
+
 ## Installation Process
 
 ### Prerequisites
